@@ -24,13 +24,19 @@ router.post('/incoming', async (req, res) => {
   try {
     console.log('Incoming call received');
     const plivoCallUUID = req.body.CallUUID;
+    const callerPhone = req.body.From;
     console.log('Plivo CallUUID:', plivoCallUUID);
 
     const response = await createUltravoxCall(ULTRAVOX_CALL_CONFIG);
 
     activeCalls.set(response.callId, {
+      ultravoxCallId: response.callId,
       plivoCallUUID,
-      createdAt: Date.now()
+      callerPhone,
+      createdAt: Date.now(),
+      streamId: null,
+      aiMemberId: null,
+      state: 'awaiting_transfer'
     });
 
     const plivoResponse = new plivo.Response();
@@ -113,7 +119,9 @@ async function transferActiveCall(ultravoxCallId) {
     console.warn('No streamId found for this call');
   }
 
-  // Make an outbound call to the agent
+  callData.state = 'transferring';
+  activeCalls.set(ultravoxCallId, callData);
+
   const outboundCall = await plivoClient.calls.create(
     fromNumber,
     destinationNumber,
@@ -121,12 +129,12 @@ async function transferActiveCall(ultravoxCallId) {
     { callbackUrl: `${baseUrl}/plivo/callback` }
   );
 
-    return {
-      status: 'success',
-      message: 'Call transfer initiated',
-      callDetails: outboundCall
-    };
-  } catch (error) {
+  return {
+    status: 'success',
+    message: 'Call transfer initiated',
+    callDetails: outboundCall
+  };
+} catch (error) {
   console.error('Error transferring call:', error);
   throw {
     status: 'error',
@@ -162,10 +170,21 @@ router.post('/transfer-xml', (req, res) => {
 
 router.post('/mpc-events', (req, res) => {
   console.log('MPC event:', req.body);
+
+  if (req.body.EventName === 'MPCEnd') {
+    const keys = activeCalls.keys();
+    keys.forEach(callId => {
+      const data = activeCalls.get(callId);
+      if (data && data.plivoCallUUID === req.body.ParticipantCallUUID) {
+        activeCalls.del(callId);
+        console.log(`Cleaned up session for callId: ${callId}`);
+      }
+    });
+  }
+
   res.status(200).end();
 });
 
-// Callback handler for the outbound call status updates
 router.post('/callback', (req, res) => {
   console.log('Callback received:', req.body);
   res.status(200).end();
