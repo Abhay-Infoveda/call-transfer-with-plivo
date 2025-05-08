@@ -1,24 +1,19 @@
 // routes/plivo.js
 import express from 'express';
 import plivo from 'plivo';
-import NodeCache from 'node-cache';
-import { createUltravoxCall } from '../ultravox-utils.js';
-import { ULTRAVOX_CALL_CONFIG } from '../ultravox-config.js';
+import redis from '../services/redisClient.js';
+import { createUltravoxCall } from '../utils/ultravox-utils.js';
+import { ULTRAVOX_CALL_CONFIG } from '../config/ultravox-config.js';
 
 const router = express.Router();
 
-// Environment variables
 const authId = process.env.PLIVO_AUTH_ID;
 const authToken = process.env.PLIVO_AUTH_TOKEN;
 const destinationNumber = process.env.DESTINATION_PHONE_NUMBER;
 const fromNumber = process.env.PLIVO_PHONE_NUMBER;
 const baseUrl = process.env.BASE_URL;
 
-// Create Plivo client
 const plivoClient = new plivo.Client(authId, authToken);
-
-// In-memory TTL cache for active calls (1 hour TTL)
-const activeCalls = new NodeCache({ stdTTL: 3600 });
 
 router.post('/incoming', async (req, res) => {
   try {
@@ -29,7 +24,7 @@ router.post('/incoming', async (req, res) => {
 
     const response = await createUltravoxCall(ULTRAVOX_CALL_CONFIG);
 
-    activeCalls.set(response.callId, {
+    const sessionData = {
       ultravoxCallId: response.callId,
       plivoCallUUID,
       callerPhone,
@@ -37,7 +32,10 @@ router.post('/incoming', async (req, res) => {
       streamId: null,
       aiMemberId: null,
       state: 'awaiting_transfer'
-    });
+    };
+
+    await redis.set(`call:${response.callId}`, JSON.stringify(sessionData), { EX: 3600 });
+    await redis.zAdd('recent_calls', [{ score: sessionData.createdAt, value: response.callId }]);
 
     const plivoResponse = new plivo.Response();
 
@@ -80,7 +78,6 @@ router.post('/incoming', async (req, res) => {
 router.post('/transferCall', async (req, res) => {
   const { callId } = req.body;
   console.log(`Request to transfer call with callId: ${callId}`);
-  
   try {
     const result = await transferActiveCall(callId);
     res.json(result);
@@ -89,22 +86,34 @@ router.post('/transferCall', async (req, res) => {
   }
 });
 
-router.get('/active-calls', (req, res) => {
-  const keys = activeCalls.keys();
-  const calls = keys.map(callId => ({
-    callId,
-    ...activeCalls.get(callId)
-  }));
+router.get('/active-calls', async (req, res) => {
+  const keys = await redis.keys('call:*');
+  const calls = [];
+  for (const key of keys) {
+    const data = await redis.get(key);
+    if (data) calls.push({ callId: key.replace('call:', ''), ...JSON.parse(data) });
+  }
   res.json(calls);
 });
 
-// Function to transfer active call to human agent
+router.get('/recent-calls', async (req, res) => {
+  const now = Date.now();
+  const fiveMinsAgo = now - 5 * 60 * 1000;
+  const callIds = await redis.zRangeByScore('recent_calls', fiveMinsAgo, now);
+  const recentCalls = [];
+
+  for (const callId of callIds) {
+    const data = await redis.get(`call:${callId}`);
+    if (data) recentCalls.push({ callId, ...JSON.parse(data) });
+  }
+  res.json(recentCalls);
+});
+
 async function transferActiveCall(ultravoxCallId) {
   try{
-  const callData = activeCalls.get(ultravoxCallId);
-  if (!callData || !callData.plivoCallUUID) {
-    throw new Error('Call not found or invalid CallUUID');
-  }
+  const data = await redis.get(`call:${ultravoxCallId}`);
+  if (!data) throw new Error('Call not found or invalid CallUUID');
+  const callData = JSON.parse(data);
 
   const customerLegUuid = callData.plivoCallUUID;
 
@@ -120,7 +129,7 @@ async function transferActiveCall(ultravoxCallId) {
   }
 
   callData.state = 'transferring';
-  activeCalls.set(ultravoxCallId, callData);
+  await redis.set(`call:${ultravoxCallId}`, JSON.stringify(callData), { EX: 3600 });
 
   const outboundCall = await plivoClient.calls.create(
     fromNumber,
@@ -168,18 +177,20 @@ router.post('/transfer-xml', (req, res) => {
   }
 });
 
-router.post('/mpc-events', (req, res) => {
+router.post('/mpc-events', async (req, res) => {
   console.log('MPC event:', req.body);
 
   if (req.body.EventName === 'MPCEnd') {
-    const keys = activeCalls.keys();
-    keys.forEach(callId => {
-      const data = activeCalls.get(callId);
+    const keys = await redis.keys('call:*');
+    for (const key of keys) {
+      const value = await redis.get(key);
+      const data = JSON.parse(value);
       if (data && data.plivoCallUUID === req.body.ParticipantCallUUID) {
-        activeCalls.del(callId);
-        console.log(`Cleaned up session for callId: ${callId}`);
+        await redis.del(key);
+        await redis.zRem('recent_calls', data.ultravoxCallId);
+        console.log(`Cleaned up Redis session for ${key}`);
       }
-    });
+    }
   }
 
   res.status(200).end();
@@ -190,21 +201,22 @@ router.post('/callback', (req, res) => {
   res.status(200).end();
 });
 
-router.post('/stream-events', (req, res) => {
+router.post('/stream-events', async (req, res) => {
   console.log('Stream event:', req.body);
 
   const { CallUUID, Event, StreamID } = req.body;
 
   if (Event === 'StartStream') {
-    const keys = activeCalls.keys();
-    keys.forEach(callId => {
-      const data = activeCalls.get(callId);
-      if (data && data.plivoCallUUID === CallUUID) {
-        data.streamId = StreamID;
-        activeCalls.set(callId, data);
-        console.log(`Mapped streamId ${StreamID} to callId ${callId}`);
+    const keys = await redis.keys('call:*');
+    for (const key of keys) {
+      const data = await redis.get(key);
+      const session = JSON.parse(data);
+      if (session && session.plivoCallUUID === CallUUID) {
+        session.streamId = StreamID;
+        await redis.set(key, JSON.stringify(session), { EX: 3600 });
+        console.log(`Mapped streamId ${StreamID} to callId ${key}`);
       }
-    });
+    }
   }
 
   res.status(200).end();
