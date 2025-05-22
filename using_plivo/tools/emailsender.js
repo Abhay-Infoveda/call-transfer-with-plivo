@@ -65,7 +65,7 @@ import fs from 'fs';
 export async function sendEmail(userEmail, to, subject, text) {
   const tokenDB = JSON.parse(fs.readFileSync('./userTokensDB.json', 'utf8'));
   const user = tokenDB[userEmail];
-  if (!user) throw new Error('User not authenticated.');
+  if (!user || !user.refresh_token) throw new Error('User not authenticated or token missing.');
 
   const oAuth2Client = new google.auth.OAuth2(
     process.env.CLIENT_ID,
@@ -74,7 +74,10 @@ export async function sendEmail(userEmail, to, subject, text) {
   );
   oAuth2Client.setCredentials({ refresh_token: user.refresh_token });
 
-  const accessToken = await oAuth2Client.getAccessToken();
+  const accessTokenObj = await oAuth2Client.getAccessToken();
+  const accessToken = accessTokenObj?.token;
+
+  if (!accessToken) throw new Error('Failed to retrieve access token');
 
   const transport = nodemailer.createTransport({
     service: 'gmail',
@@ -84,7 +87,7 @@ export async function sendEmail(userEmail, to, subject, text) {
       clientId: process.env.CLIENT_ID,
       clientSecret: process.env.CLIENT_SECRET,
       refreshToken: user.refresh_token,
-      accessToken: accessToken.token
+      accessToken: accessToken
     }
   });
 
@@ -99,3 +102,4 @@ export async function sendEmail(userEmail, to, subject, text) {
   const result = await transport.sendMail(mailOptions);
   return result;
 }
+

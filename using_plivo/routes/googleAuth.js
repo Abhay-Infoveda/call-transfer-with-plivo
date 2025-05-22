@@ -18,7 +18,10 @@ const oAuth2Client = new google.auth.OAuth2(
 router.get('/auth/google', (req, res) => {
   const authUrl = oAuth2Client.generateAuthUrl({
     access_type: 'offline',
-    scope: ['https://www.googleapis.com/auth/gmail.send', 'email', 'profile'],
+    scope: ['https://www.googleapis.com/auth/userinfo.email',
+            'https://www.googleapis.com/auth/userinfo.profile',
+            'https://mail.google.com/'
+            ],
     prompt: 'consent'
   });
   res.redirect(authUrl);

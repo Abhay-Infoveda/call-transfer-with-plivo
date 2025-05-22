@@ -54,7 +54,7 @@ const selectedTools = [
         },
       ],
       "http": {
-        "baseUrlPattern": `${toolsBaseUrl}/plivo/transferCall`,
+        "baseUrlPattern": `${toolsBaseUrl}/twilio/transferCall`,
         "httpMethod": "POST",
       },
     },
@@ -68,5 +68,5 @@ export const ULTRAVOX_CALL_CONFIG = {
   temperature: 0.3,
   firstSpeaker: 'FIRST_SPEAKER_AGENT',
   selectedTools: selectedTools,
-  medium: { "plivo": {} } 
+  medium: { "twilio": {} } 
 };

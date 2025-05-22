@@ -2,6 +2,7 @@ import express from 'express';
 import 'dotenv/config';
 import path from 'path';
 import { router as plivoRoutes } from './routes/plivo.js';
+import {router as twilioRoutes} from './routes/twilio.js';
 import googleAuthRoutes from './routes/googleAuth.js';
 import emailToolRoutes from './routes/emailTool.js';
 import calendarRoutes from './routes/calendar.js';
@@ -32,6 +33,7 @@ app.use("/api/users", userRoutes)
 app.use('/', googleAuthRoutes);
 app.use('/email', emailToolRoutes);
 app.use('/plivo/', plivoRoutes);
+app.use("/twilio/",twilioRoutes);
 app.use('/tools/calendar', calendarRoutes);
 
 // Start server
