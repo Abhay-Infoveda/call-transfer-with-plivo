@@ -20,7 +20,8 @@ router.get('/auth/google', (req, res) => {
     access_type: 'offline',
     scope: ['https://www.googleapis.com/auth/userinfo.email',
             'https://www.googleapis.com/auth/userinfo.profile',
-            'https://mail.google.com/'
+            'https://mail.google.com/',
+            'https://www.googleapis.com/auth/calendar.events'
             ],
     prompt: 'consent'
   });

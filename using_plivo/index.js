@@ -5,7 +5,7 @@ import { router as plivoRoutes } from './routes/plivo.js';
 import {router as twilioRoutes} from './routes/twilio.js';
 import googleAuthRoutes from './routes/googleAuth.js';
 import emailToolRoutes from './routes/emailTool.js';
-import calendarRoutes from './routes/calendar.js';
+import calendarRoutes from './routes/calendarRoutes.js';
 import dbConnect from './config/dbConnect.js'
 import authRoutes from './routes/authRoutes.js'
 import userRoutes from './routes/userRoutes.js'
