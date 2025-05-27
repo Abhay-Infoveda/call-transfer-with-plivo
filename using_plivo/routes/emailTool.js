@@ -1,6 +1,6 @@
 // routes/emailTool.js
 import express from 'express';
-import { sendEmail } from '../tools/emailsender.js';
+import { sendGmail } from '../tools/gmail/sendGmail.js';
 
 //Expected json from ultravox:
 /*{
@@ -21,7 +21,7 @@ router.post('/send', async (req, res) => {
   }
 
   try {
-    const result = await sendEmail(userEmail, to, subject, text);
+    const result = await sendGmail(userEmail, to, subject, text);
     res.json({ success: true, messageId: result.messageId });
   } catch (error) {
     console.error(error);

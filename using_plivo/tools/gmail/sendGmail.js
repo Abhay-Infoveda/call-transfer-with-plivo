@@ -59,21 +59,10 @@
 
 //THIS IS FOR TESTING WITH THE AI AGENT
 import nodemailer from 'nodemailer';
-import { google } from 'googleapis';
-import fs from 'fs';
+import { getClientWithRefreshToken } from '../../utils/authClient.js';
 
-export async function sendEmail(userEmail, to, subject, text) {
-  const tokenDB = JSON.parse(fs.readFileSync('./userTokensDB.json', 'utf8'));
-  const user = tokenDB[userEmail];
-  if (!user || !user.refresh_token) throw new Error('User not authenticated or token missing.');
-
-  const oAuth2Client = new google.auth.OAuth2(
-    process.env.CLIENT_ID,
-    process.env.CLIENT_SECRET,
-    process.env.REDIRECT_URI
-  );
-  oAuth2Client.setCredentials({ refresh_token: user.refresh_token });
-
+export async function sendGmail(userEmail, to, subject, text) {
+  const oAuth2Client = getClientWithRefreshToken(userEmail);
   const accessTokenObj = await oAuth2Client.getAccessToken();
   const accessToken = accessTokenObj?.token;
 
@@ -86,7 +75,7 @@ export async function sendEmail(userEmail, to, subject, text) {
       user: userEmail,
       clientId: process.env.CLIENT_ID,
       clientSecret: process.env.CLIENT_SECRET,
-      refreshToken: user.refresh_token,
+      refreshToken: oAuth2Client.credentials.refresh_token,
       accessToken: accessToken
     }
   });

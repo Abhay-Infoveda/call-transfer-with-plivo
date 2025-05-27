@@ -1,8 +1,8 @@
 // routes/googleAuth.js
 import express from 'express';
 import { google } from 'googleapis';
-import fs from 'fs';
 import dotenv from 'dotenv';
+import { saveToken } from '../utils/tokenStore.js';
 
 dotenv.config();
 
@@ -39,12 +39,7 @@ router.get('/auth/google/callback', async (req, res) => {
     const { data } = await oauth2.userinfo.get();
     const email = data.email;
 
-    const tokenDB = JSON.parse(fs.readFileSync('./userTokensDB.json', 'utf8'));
-    tokenDB[email] = {
-      email,
-      refresh_token: tokens.refresh_token
-    };
-    fs.writeFileSync('./userTokensDB.json', JSON.stringify(tokenDB, null, 2));
+    saveToken(email, { refresh_token: tokens.refresh_token });
 
     res.send(`<h3>Email connected: ${email}</h3>`);
   } catch (err) {

@@ -1,19 +1,9 @@
 import { google } from 'googleapis';
-import fs from 'fs';
+import { getClientWithRefreshToken } from '../../utils/authClient.js';
 
 export async function updateCalendarEvent(userEmail, eventId, updatedFields) {
-  const tokenDB = JSON.parse(fs.readFileSync('./userTokensDB.json', 'utf8'));
-  const user = tokenDB[userEmail];
-  if (!user) throw new Error('User not authenticated.');
-
-  const oAuth2Client = new google.auth.OAuth2(
-    process.env.CLIENT_ID,
-    process.env.CLIENT_SECRET,
-    process.env.REDIRECT_URI
-  );
-  oAuth2Client.setCredentials({ refresh_token: user.refresh_token });
-
-  const calendar = google.calendar({ version: 'v3', auth: oAuth2Client });
+  const auth = getClientWithRefreshToken(userEmail);
+  const calendar = google.calendar({ version: 'v3', auth: auth });
 
   const updatedEvent = {
     ...(updatedFields.summary && { summary: updatedFields.summary }),
