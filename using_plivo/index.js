@@ -9,6 +9,7 @@ import calendarRoutes from './routes/calendarRoutes.js';
 import dbConnect from './config/dbConnect.js'
 import authRoutes from './routes/authRoutes.js'
 import userRoutes from './routes/userRoutes.js'
+import googleSheetRoutes from './routes/googleSheet.js'
 
 dbConnect();
 
@@ -35,6 +36,7 @@ app.use('/email', emailToolRoutes);
 app.use('/plivo/', plivoRoutes);
 app.use("/twilio/",twilioRoutes);
 app.use('/tools/calendar', calendarRoutes);
+app.use('/tools/sheets', googleSheetRoutes)
 
 // Start server
 app.listen(port, () => {
