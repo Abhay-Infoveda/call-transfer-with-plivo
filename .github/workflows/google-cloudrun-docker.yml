@@ -1,0 +1,58 @@
+name: 'Build and Deploy Voice Agents to Cloud Run'
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  PROJECT_ID: 'convedai' # TODO: update to your Google Cloud project ID
+  REGION: 'us-central1' # TODO: update to your region
+  GCP_SERVICE_ACCOUNT: voice-agents@convedai.iam.gserviceaccount.com
+
+  BACKEND_SERVICE: 'voice-agents-service' # Cloud Run Service Name for Backend
+  ARTIFACT_REPO: 'ai-voice-agents' # Name of Artifact Registry repository
+
+jobs:
+  deploy:
+    runs-on: 'ubuntu-latest'
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: 'Checkout Code'
+        uses: 'actions/checkout@v4'
+
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          service_account: '${{ env.GCP_CREDENTIALS }}'
+
+      # Authenticate Docker with Google Artifact Registry
+      - name: 'Docker Auth'
+        run: |
+          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+
+      # Build and Push Backend Image
+      - name: 'Build and Push Backend Image'
+        run: |
+          BACKEND_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/backend:${{ github.sha }}"
+          echo "Building Backend Image: ${BACKEND_TAG}"
+          docker build -t "${BACKEND_TAG}" -f backend/Dockerfile .
+          docker push "${BACKEND_TAG}"
+          
+      # Deploy Backend to Cloud Run
+      - name: 'Deploy Backend to Cloud Run'
+        uses: 'google-github-actions/deploy-cloudrun@v2'
+        with:
+          service: '${{ env.BACKEND_SERVICE }}'
+          region: '${{ env.REGION }}'
+          image: '${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/backend:${{ github.sha }}'
+
+      # Show Deployment URLs
+      - name: 'Show Cloud Run URLs'
+        run: |
+          echo "Backend Service URL: ${{ steps.deploy-backend.outputs.url }}"
