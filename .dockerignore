@@ -1,0 +1,9 @@
+# Ignore local dependencies
+node_modules
+using_plivo/node_modules
+
+# Ignore environment files
+.env
+
+# Ignore logs
+npm-debug.log 
