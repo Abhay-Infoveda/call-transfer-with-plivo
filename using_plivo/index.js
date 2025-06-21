@@ -15,7 +15,7 @@ import whatsappRoutes from './routes/whatsapp.js';
 
 // dbConnect();
 
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 8080;
 const app = express();
 const __dirname = path.resolve();
 
