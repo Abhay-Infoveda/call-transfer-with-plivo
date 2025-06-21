@@ -1,9 +1,9 @@
 // routes/plivo.js
 import express from 'express';
 import plivo from 'plivo';
-import redis from '../services/redisClient.js';
+// import redis from '../services/redisClient.js';
 import { createUltravoxCall } from '../utils/ultravox-utils.js';
-import { ULTRAVOX_CALL_CONFIG } from '../config/ultravox-config.js';
+import { ULTRAVOX_CALL_CONFIG } from '../config/ultravox-config-steve.js';
 
 const router = express.Router();
 

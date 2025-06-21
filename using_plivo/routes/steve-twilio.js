@@ -2,7 +2,7 @@ import express from 'express';
 import twilio from 'twilio';
 import 'dotenv/config';
 import { createUltravoxCall } from '../utils/ultravox-utils.js';
-import { ULTRAVOX_CALL_CONFIG } from '../config/ultravox-config.js';
+import { ULTRAVOX_CALL_CONFIG } from '../config/ultravox-config-steve.js';
 
 const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 const destinationNumber = process.env.DESTINATION_PHONE_NUMBER;
@@ -75,7 +75,7 @@ async function transferActiveCall(callSid) {
 }
 
 // Handle incoming calls from Twilio
-router.post('/incoming', async (req, res) => {
+router.post('/incoming/steve', async (req, res) => {
     try {
         console.log('Incoming call received');
         const twilioCallSid = req.body.CallSid;

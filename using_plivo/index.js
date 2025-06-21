@@ -2,7 +2,8 @@ import express from 'express';
 import 'dotenv/config';
 import path from 'path';
 import { router as plivoRoutes } from './routes/plivo.js';
-import {router as twilioRoutes} from './routes/twilio.js';
+import {router as twilioRoutes} from './routes/steve-twilio.js';
+import {router as anikaTwilioRoutes} from './routes/anika-twilio.js';
 import googleAuthRoutes from './routes/googleAuth.js';
 import emailToolRoutes from './routes/emailTool.js';
 import calendarRoutes from './routes/calendarRoutes.js';
@@ -12,9 +13,9 @@ import userRoutes from './routes/userRoutes.js'
 import googleSheetRoutes from './routes/googleSheet.js'
 import whatsappRoutes from './routes/whatsapp.js';
 
-dbConnect();
+// dbConnect();
 
-const port = 3000;
+const port = process.env.PORT || 8000;
 const app = express();
 const __dirname = path.resolve();
 
@@ -36,6 +37,7 @@ app.use('/', googleAuthRoutes);
 app.use('/email', emailToolRoutes);
 app.use('/plivo/', plivoRoutes);
 app.use("/twilio/",twilioRoutes);
+app.use("/twilio/", anikaTwilioRoutes);
 app.use('/tools/calendar', calendarRoutes);
 app.use('/tools/sheets', googleSheetRoutes)
 app.use('/tools/whatsapp', whatsappRoutes);
