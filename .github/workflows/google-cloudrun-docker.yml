@@ -41,7 +41,7 @@ jobs:
         run: |
           BACKEND_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/backend:${{ github.sha }}"
           echo "Building Backend Image: ${BACKEND_TAG}"
-          docker build -t "${BACKEND_TAG}" -f voice-agents-backend/Dockerfile .
+          docker build -t "${BACKEND_TAG}" -f Dockerfile .
           docker push "${BACKEND_TAG}"
           
       # Deploy Backend to Cloud Run
