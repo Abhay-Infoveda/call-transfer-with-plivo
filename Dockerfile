@@ -15,7 +15,7 @@ RUN npm ci --only=production
 COPY using_plivo/ .
 
 # The application listens on port 8000
-EXPOSE 8000
+EXPOSE 8080
 
 # The command to run the application
 CMD [ "node", "index.js" ] 
