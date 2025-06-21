@@ -10,6 +10,7 @@ import dbConnect from './config/dbConnect.js'
 import authRoutes from './routes/authRoutes.js'
 import userRoutes from './routes/userRoutes.js'
 import googleSheetRoutes from './routes/googleSheet.js'
+import whatsappRoutes from './routes/whatsapp.js';
 
 dbConnect();
 
@@ -37,6 +38,7 @@ app.use('/plivo/', plivoRoutes);
 app.use("/twilio/",twilioRoutes);
 app.use('/tools/calendar', calendarRoutes);
 app.use('/tools/sheets', googleSheetRoutes)
+app.use('/tools/whatsapp', whatsappRoutes);
 
 // Start server
 app.listen(port, () => {

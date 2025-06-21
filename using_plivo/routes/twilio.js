@@ -79,10 +79,72 @@ router.post('/incoming', async (req, res) => {
     try {
         console.log('Incoming call received');
         const twilioCallSid = req.body.CallSid;
-        console.log('Twilio CallSid:', twilioCallSid);
+        console.log('Twilio CallSid:', req.body);
+        const callerNumber = req.body.From
+        const ultravoxConfig = JSON.parse(JSON.stringify(ULTRAVOX_CALL_CONFIG));
+        console.log('Ultravox call config JSON:', ultravoxConfig.systemPrompt)
+        ultravoxConfig.systemPrompt = `${ultravoxConfig.systemPrompt}. 
+        ------
+        ## 📞 Mobile Number Handling
 
+        - The caller's phone number is: **${callerNumber}**.
+        - Ask the patient if **${callerNumber}** is their **WhatsApp number** where the appointment confirmation can be sent.
+        - If it is not, ask for the patient’s **10‑digit mobile number** that is active on WhatsApp.
+        - Ensure the number has **10 digits** (making it **12 digits** with the '+91' country code).
+        - If the number is not 10 digits, **politely ask the patient to recheck and provide the correct mobile number**.
+        - Once collected, **repeat the number slowly and clearly, digit by digit**.
+        - Ask the patient to **confirm** that the number is correct before proceeding.
+
+        ---
+
+        ## 🗣 Name Usage
+
+        - Use the patient’s **first name only**.  
+        - Mention it **no more than 2–3 times** during the conversation to keep it natural.
+
+        ---
+
+        ## ❓ Common Queries
+
+        Use the **question_and_answer** function to respond to questions about:
+
+        - Services offered  
+        - Treatments available  
+        - Clinic hours  
+        - Insurance support  
+        - Location details (only if requested)
+
+        ---
+
+        ## ✅ Final Steps
+
+        - Confirm the appointment with **Dr. John MacCarthy** using **Create_Event**.  
+        - Send a confirmation email using **Send_Email**.  
+        - Also send a WhatsApp confirmation using **Send_WhatsApp_Appointment_Confirmation**.
+
+        ---
+
+        ## 🔚 Before Ending the Call
+
+        - Ask if the patient needs any further help.  
+        - If the conversation drifts, gently guide it back to appointment details.  
+        - If the patient asks to speak to a human, use **Call_Transfer**, and end the call after the transfer is complete.
+
+        ---
+
+        ## 🏥 Clinic Locations (Mention only if asked)
+
+        - Connaught Place, New Delhi  
+        - Koramangala, Bengaluru  
+        - Banjara Hills, Hyderabad  
+        - Andheri West, Mumbai  
+        - Salt Lake Sector V, Kolkata  
+        - T. Nagar, Chennai  
+        - Viman Nagar, Pune  
+        - Sector 29, Gurgaon
+        `;
         // Create the Ultravox call
-        const response = await createUltravoxCall(ULTRAVOX_CALL_CONFIG);
+        const response = await createUltravoxCall(ultravoxConfig);
 
         activeCalls.set(response.callId, {
             twilioCallSid: twilioCallSid
