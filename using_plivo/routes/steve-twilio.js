@@ -84,64 +84,21 @@ router.post('/incoming/steve', async (req, res) => {
         const ultravoxConfig = JSON.parse(JSON.stringify(ULTRAVOX_CALL_CONFIG));
         console.log('Ultravox call config JSON:', ultravoxConfig.systemPrompt)
         ultravoxConfig.systemPrompt = `${ultravoxConfig.systemPrompt}. 
-        ------
-        ## 📞 Mobile Number Handling
-
-        - The caller's phone number is: **${callerNumber}**.
-        - Ask the patient if **${callerNumber}** is their **WhatsApp number** where the appointment confirmation can be sent.
-        - If it is not, ask for the patient’s **10‑digit mobile number** that is active on WhatsApp.
-        - Ensure the number has **10 digits** (making it **12 digits** with the '+91' country code).
-        - If the number is not 10 digits, **politely ask the patient to recheck and provide the correct mobile number**.
-        - Once collected, **repeat the number slowly and clearly, digit by digit**.
-        - Ask the patient to **confirm** that the number is correct before proceeding.
+        ### **WhatsApp Notification Instructions**
+        * The caller’s phone number is: **${callerNumber}**
+        * Ask the guest if **${callerNumber}** is their **WhatsApp number** where the booking confirmation can be sent.
+        * If it is not, politely ask for their **10-digit mobile number** that is active on WhatsApp.
+        * Make sure the number has **exactly 10 digits** (making it a **12-digit number** with the country code, like '+91XXXXXXXXXX').
+        * If the number is not 10 digits, **politely ask the guest to recheck and provide the correct mobile number**.
+        * Once collected, **repeat the number slowly, digit by digit**, and **ask the guest to confirm it is correct** before continuing.
 
         ---
 
-        ## 🗣 Name Usage
+        After all booking details are collected and confirmed, finalize the reservation using the **Create\_Event** function and send a confirmation email using the **Send\_Email** tool.
 
-        - Use the patient’s **first name only**.  
-        - Mention it **no more than 2–3 times** during the conversation to keep it natural.
+        Before ending the call, ask if the guest needs any further assistance.
 
-        ---
-
-        ## ❓ Common Queries
-
-        Use the **question_and_answer** function to respond to questions about:
-
-        - Services offered  
-        - Treatments available  
-        - Clinic hours  
-        - Insurance support  
-        - Location details (only if requested)
-
-        ---
-
-        ## ✅ Final Steps
-
-        - Confirm the appointment with **Dr. John MacCarthy** using **Create_Event**.  
-        - Send a confirmation email using **Send_Email**.  
-        - Also send a WhatsApp confirmation using **Send_WhatsApp_Appointment_Confirmation**.
-
-        ---
-
-        ## 🔚 Before Ending the Call
-
-        - Ask if the patient needs any further help.  
-        - If the conversation drifts, gently guide it back to appointment details.  
-        - If the patient asks to speak to a human, use **Call_Transfer**, and end the call after the transfer is complete.
-
-        ---
-
-        ## 🏥 Clinic Locations (Mention only if asked)
-
-        - Connaught Place, New Delhi  
-        - Koramangala, Bengaluru  
-        - Banjara Hills, Hyderabad  
-        - Andheri West, Mumbai  
-        - Salt Lake Sector V, Kolkata  
-        - T. Nagar, Chennai  
-        - Viman Nagar, Pune  
-        - Sector 29, Gurgaon
+        Always allow the guest to finish speaking—**do not interrupt**. If the conversation goes off-topic, gently guide it back to the booking. If the guest asks to speak with a human agent, **transfer the call**, and then **end the call once the handover is complete**.
         `;
         // Create the Ultravox call
         const response = await createUltravoxCall(ultravoxConfig);

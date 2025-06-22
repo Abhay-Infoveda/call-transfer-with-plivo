@@ -134,15 +134,13 @@ router.post('/incoming/anika', async (req, res) => {
 
         ## 🏥 Clinic Locations (Mention only if asked)
 
-        - Connaught Place, New Delhi  
-        - Koramangala, Bengaluru  
-        - Banjara Hills, Hyderabad  
-        - Andheri West, Mumbai  
-        - Salt Lake Sector V, Kolkata  
-        - T. Nagar, Chennai  
-        - Viman Nagar, Pune  
-        - Sector 29, Gurgaon
-        `;
+        - Jewellery Quarter, Birmingham
+        - West Didsbury, Manchester
+        - Jesmond, Newcastle
+        - Hockley, Nottingham
+        - SoHo, New York City
+        - Lincoln Park, Chicago
+        - Palo Alto, California`;
         // Create the Ultravox call
         const response = await createUltravoxCall(ultravoxConfig);
 
