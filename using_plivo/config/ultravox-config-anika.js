@@ -134,8 +134,9 @@ const selectedTools = [
           "required": true
         }
       ],
-      "endpoint": `${toolsBaseUrl}/tools/sheets/append`,
-      "method": "POST"
+      "http": {
+      "baseUrlPattern": `${toolsBaseUrl}/tools/sheets/append`,
+      "httpMethod": "POST"},
     }
   },
   {

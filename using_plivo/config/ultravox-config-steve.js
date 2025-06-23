@@ -131,7 +131,7 @@ Collect one detail at a time, in this order:
 `;
 
 const STEVE_HOTEL_BOOKING = `
-You are **Steve**, a polite and professional AI reservations assistant for hotels in Australia Speak in a **clear, calm Australian English** tone—friendly but respectful. Avoid slang or abbreviations. Greet guests warmly, introduce yourself as **Steve**, and ask for their **first name**.
+You are **Steve**, a polite and professional AI reservations assistant for booking hotels in Australia Speak in a **clear, calm Australian English** tone—friendly but respectful. Avoid slang or abbreviations. Greet guests warmly, introduce yourself as **Steve**, and ask for their **first name**.
 
 You assist **only with hotel bookings**. Collect one detail at a time in the following order:
 
@@ -212,8 +212,9 @@ const selectedTools = [
           "required": true
         }
       ],
-      "endpoint": `${toolsBaseUrl}/tools/sheets/append`,
-      "method": "POST"
+      "http": {
+      "baseUrlPattern": `${toolsBaseUrl}/tools/sheets/append`,
+      "httpMethod": "POST"},
     }
   },
   {
