@@ -25,9 +25,9 @@ Mall Gurgaao; and Shalom Café at Select CityWalk Saaaket, Ambience Mall Gurgaao
 
 const Dental_Appoint_PROMPT = `
 
-# Cassidy - Smiles & Shine Dental Clinics Virtual Assistant Prompt
+# Emily - Smiles & Shine Dental Clinics Virtual Assistant Prompt
 
-You are **Cassidy**, a polite and professional AI assistant for **Smiles & Shine Dental Clinics**.  
+You are **Emily**, a polite and professional AI assistant for **Smiles & Shine Dental Clinics**.  
 Speak in **Indian English** with a **soft, clear tone**, avoiding slang or abbreviations.  
 Always **speak slowly and clearly**, pausing as needed.  
 **Never interrupt** — always allow the patient to finish speaking before you respond.
@@ -37,7 +37,7 @@ Always **speak slowly and clearly**, pausing as needed.
 ## 👋 Greeting & Introduction
 
 1. Greet the patient warmly.  
-2. Introduce yourself as 'Cassidy'.  
+2. Introduce yourself as 'Emily'.  
 3. Ask for the patient’s **name**.  
 4. Ask **which city they are speaking from**.  
    - ❗️Do not list all clinic locations unless the user asks or seems unsure.  
@@ -74,109 +74,70 @@ Collect one detail at a time, in this order:
 const STEVE_SYS_PROMPT = `You are Steve, a warm, friendly Australian male voice assistant who helps users book hotels. Speak casually (“mate” not “machine”) and greet users with, “Hey there! You’re speaking with Steve. How can I help you today?” Gather missing booking details one at a time: city/area, dates/nights, budget, guests, and preferences, keeping responses concise, crisp, and not too fast. Suggest 1–3 hotels with brief descriptions and prices, then ask if they’d like to proceed. If yes, collect full name, email, and phone number, confirming each one before moving to the next. Spell the name back for confirmation. For the email, have them spell it out character by character; recognize “at” or “at the rate” as @ and “dot” as ., then reconstruct, when user tells name read it aloud, and confirm also check it in the database using Check_Details tool if you find the correct details you can confirm it with the user and if the user confirms it you can use those details to book the hotel and send the confirmation email using 'Send_Email' tool and don't need to ask for further details. If you need the user's phone number it is right here: {{ $json.query.From }}. Only after all details are confirmed, use 'Book_Hotel' tool to book hotel and 'Send_Email' tool to send confirmation email to the customer, ensuring correct email format. End warmly (“All set—your room’s booked and I’ve just sent the confirmation to matt@gmail.com. Anything else I can help you with?”). If not, hang up. Keep tone natural, avoid robotic phrasing, and ask only one clear question at a time.`;
 
 const selectedTools = [
-  // {
-  //   "temporaryTool": {
-  //     "modelToolName": "Save_details",
-  //     "description": "Save the details of the booking",
-  //     "dynamicParameters": [
-  //       {
-  //         "name": "phoneNumber",
-  //         "location": "PARAMETER_LOCATION_BODY",
-  //         "schema": {
-  //           "description": "The caller's phone number",
-  //           "type": "string",
-  //         },
-  //         "required": true,
-  //       },
-  //       {
-  //         "name": "restaurant",
-  //         "location": "PARAMETER_LOCATION_BODY",
-  //         "schema": {
-  //           "description": "Restaurant at which the table is booked.",
-  //           "type": "string",
-  //         },
-  //         "required": true,
-  //       },
-  //       {
-  //         "name": "guests",
-  //         "location": "PARAMETER_LOCATION_BODY",
-  //         "schema": {
-  //           "description": "Number of guests attending.",
-  //           "type": "string",
-  //         },
-  //         "required": true,
-  //       },
-  //       {
-  //         "name": "time",
-  //         "location": "PARAMETER_LOCATION_BODY",
-  //         "schema": {
-  //           "description": "Time at which the restaurant is booked.",
-  //           "type": "string",
-  //         },
-  //         "required": true,
-  //       },
-  //       {
-  //         "name": "date",
-  //         "location": "PARAMETER_LOCATION_BODY",
-  //         "schema": {
-  //           "description": "Date for which the restaurant is booked.",
-  //           "type": "string",
-  //         },
-  //         "required": true,
-  //       },
-  //       {
-  //         "name": "name",
-  //         "location": "PARAMETER_LOCATION_BODY",
-  //         "schema": {
-  //           "description": "Name of the person who booked the restaurant.",
-  //           "type": "string",
-  //         },
-  //         "required": true,
-  //       },
-  //     ],
-  //     "http": {
-  //       "baseUrlPattern": `https://abhay-pancholi1.app.n8n.cloud/webhook/2f8aa8ba-e2f8-4387-93f9-ef19ff9e71f7`,
-  //       "httpMethod": "GET",
-  //     },
-  //   },
-  // },
-
-  // {
-  //   "temporaryTool": {
-  //     "modelToolName": "Save_transcript",
-  //     "description": "Saves transcript of a call",
-  //     "automaticParameters": [
-  //       {
-  //         "name": "callId",
-  //         "location": "PARAMETER_LOCATION_BODY",
-  //         "knownValue": "KNOWN_PARAM_CALL_ID"
-  //       }
-  //     ],
-  //     "http": {
-  //       "baseUrlPattern": `https://abhay-pancholi1.app.n8n.cloud/webhook/2a7a6b61-58a6-44c2-9f0c-378c20c645c5`,
-  //       "httpMethod": "GET",
-  //     },
-  //   },
-  // },
-
-  // {
-  //   "temporaryTool": {
-  //     "modelToolName": "Save_Calls",
-  //     "description": "Saves the incoming call to a google sheet",
-  //     "automaticParameters": [
-  //       {
-  //         "name": "callId",
-  //         "location": "PARAMETER_LOCATION_BODY",
-  //         "knownValue": "KNOWN_PARAM_CALL_ID"
-  //       }
-  //     ],
-  //     "http": {
-  //       "baseUrlPattern": `https://abhay-pancholi1.app.n8n.cloud/webhook/74502784-ec3a-425c-a033-007430840e21`,
-  //       "httpMethod": "GET",
-  //     },
-  //   },
-  // },
-  
+  {
+    "temporaryTool": {
+      "modelToolName": "Save_Booking_Details",
+      "description": "Save the booking details to Google Sheets",
+      "dynamicParameters": [
+        {
+          "name": "phone_number",
+          "location": "PARAMETER_LOCATION_BODY",
+          "schema": {
+            "description": "The caller's phone number",
+            "type": "string"
+          },
+          "required": true
+        },
+        {
+          "name": "restaurant",
+          "location": "PARAMETER_LOCATION_BODY",
+          "schema": {
+            "description": "Restaurant at which the table is booked",
+            "type": "string"
+          },
+          "required": true
+        },
+        {
+          "name": "guests",
+          "location": "PARAMETER_LOCATION_BODY",
+          "schema": {
+            "description": "Number of guests attending",
+            "type": "string"
+          },
+          "required": true
+        },
+        {
+          "name": "time",
+          "location": "PARAMETER_LOCATION_BODY",
+          "schema": {
+            "description": "Time at which the restaurant is booked",
+            "type": "string"
+          },
+          "required": true
+        },
+        {
+          "name": "date",
+          "location": "PARAMETER_LOCATION_BODY",
+          "schema": {
+            "description": "Date for which the restaurant is booked",
+            "type": "string"
+          },
+          "required": true
+        },
+        {
+          "name": "name",
+          "location": "PARAMETER_LOCATION_BODY",
+          "schema": {
+            "description": "Name of the guest making the booking",
+            "type": "string"
+          },
+          "required": true
+        }
+      ],
+      "endpoint": `${toolsBaseUrl}/tools/sheets/append`,
+      "method": "POST"
+    }
+  },
   {
     "temporaryTool": {
       "modelToolName": "transferCall",

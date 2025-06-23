@@ -94,7 +94,7 @@ router.post('/incoming/steve', async (req, res) => {
 
         ---
 
-        After all booking details are collected and confirmed, finalize the reservation using the **Create\_Event** function and send a confirmation email using the **Send\_Email** tool.
+        After all booking details are collected and confirmed, finalize the reservation using the **Create\_Event** tool and **Save\_Booking\_Details** tool to save the booking details in the database and send a confirmation email using the **Send\_Email** tool.
 
         Before ending the call, ask if the guest needs any further assistance.
 

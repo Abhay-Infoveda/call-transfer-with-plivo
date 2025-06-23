@@ -118,8 +118,7 @@ router.post('/incoming/anika', async (req, res) => {
 
         ## ✅ Final Steps
 
-        - Confirm the appointment with **Dr. John MacCarthy** using **Create_Event**.  
-        - Send a confirmation email using **Send_Email**.  
+        - Confirm the appointment with **Dr. John MacCarthy** using **Create_Event** tool and **Save_Booking_Details** tool.
         - Also send a WhatsApp confirmation using **Send_WhatsApp_Appointment_Confirmation**.
 
         ---
