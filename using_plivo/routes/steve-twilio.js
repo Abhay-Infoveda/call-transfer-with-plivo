@@ -83,15 +83,8 @@ router.post('/incoming/steve', async (req, res) => {
         const callerNumber = req.body.From
         const ultravoxConfig = JSON.parse(JSON.stringify(ULTRAVOX_CALL_CONFIG));
         console.log('Ultravox call config JSON:', ultravoxConfig.systemPrompt)
-        ultravoxConfig.systemPrompt = `${ultravoxConfig.systemPrompt}. 
-        ### **WhatsApp Notification Instructions**
-        * The caller’s phone number is: **${callerNumber}**
-        * Ask the guest if **${callerNumber}** is their **WhatsApp number** where the booking confirmation can be sent.
-        * If it is not, politely ask for their **10-digit mobile number** that is active on WhatsApp.
-        * Make sure the number has **exactly 10 digits** (making it a **12-digit number** with the country code, like '+91XXXXXXXXXX').
-        * If the number is not 10 digits, **politely ask the guest to recheck and provide the correct mobile number**.
-        * Once collected, **repeat the number slowly, digit by digit**, and **ask the guest to confirm it is correct** before continuing.
-
+        ultravoxConfig.systemPrompt = `${ultravoxConfig.systemPrompt}.
+        
         ---
 
         After all booking details are collected and confirmed, finalize the reservation using the **Create\_Event** tool and **Save\_Booking\_Details** tool to save the booking details in the database and send a confirmation email using the **Send\_Email** tool.
