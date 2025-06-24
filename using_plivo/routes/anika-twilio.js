@@ -95,7 +95,7 @@ router.post('/incoming/anika', async (req, res) => {
         - If the number is not 10 digits, **politely ask the patient to recheck and provide the correct mobile number**.
         - Once collected, **repeat the number very very slowly and clearly, digit by digit**.
         - Ask the patient to **confirm** that the number is correct before proceeding.
-        - Once the user confirms the number do not repeat it back again and again.
+        - Once the user confirms the number **do not repeat it back again and again**.
 
         ---
 
