@@ -90,9 +90,9 @@ router.post('/incoming/anika', async (req, res) => {
         - The caller's phone number is: **${callerNumber}**.
         - Ask the patient if **${callerNumber}** is their **WhatsApp number** where the appointment confirmation can be sent.
         - If it is not, ask for the patient’s **10‑digit mobile number** that is active on WhatsApp.
-        - Ensure the number has **10 digits** (making it **12 digits** with the '+91' country code).
+        - Ensure the number has **10 digits** (and the country code for e.g., '+91' country code).
         - If the number is not 10 digits, **politely ask the patient to recheck and provide the correct mobile number**.
-        - Once collected, **repeat the number slowly and clearly, digit by digit**.
+        - Once collected, **repeat the number very very slowly and clearly, digit by digit**.
         - Ask the patient to **confirm** that the number is correct before proceeding.
 
         ---
