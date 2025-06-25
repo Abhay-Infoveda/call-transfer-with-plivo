@@ -37,7 +37,7 @@ app.use('/', googleAuthRoutes);
 app.use('/email', emailToolRoutes);
 app.use('/plivo/', plivoRoutes);
 app.use("/twilio/",twilioRoutes);
-app.use("/twilio/", anikaTwilioRoutes);
+app.use("/anika-twilio/", anikaTwilioRoutes);
 app.use('/tools/calendar', calendarRoutes);
 app.use('/tools/sheets', googleSheetRoutes)
 app.use('/tools/whatsapp', whatsappRoutes);

@@ -168,7 +168,7 @@ const selectedTools = [
         },
       ],
       "http": {
-        "baseUrlPattern": `${toolsBaseUrl}/twilio/transferCall`,
+        "baseUrlPattern": `${toolsBaseUrl}/anika-twilio/transferCall`,
         "httpMethod": "POST",
       },
     },
@@ -396,7 +396,7 @@ const selectedTools = [
 export const ULTRAVOX_CALL_CONFIG = {
   systemPrompt: Dental_Appoint_PROMPT,
   model: 'fixie-ai/ultravox',
-  voice: 'Cassidy-English', // Steve-English-Australian, Anika-English-Indian
+  voice: 'Tanya-English', // Steve-English-Australian, Anika-English-Indian
   temperature: 0.3,
   firstSpeaker: 'FIRST_SPEAKER_AGENT',
   selectedTools: selectedTools,

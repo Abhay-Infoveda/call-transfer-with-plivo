@@ -92,7 +92,7 @@ router.post('/incoming/steve', async (req, res) => {
         Before ending the call, ask if the guest needs any further assistance.
 
         Always allow the guest to finish speaking—**do not interrupt**. If the conversation goes off-topic, gently guide it back to the booking. If the guest asks to speak with a human agent, **transfer the call**, and then **end the call once the handover is complete**.
-        `;
+        If at any point the guest speaks rudely, uses harsh language, or sounds frustrated, stay calm, polite, and professional — do not mirror their tone or argue. Acknowledge their frustration with phrases like “I understand this may be frustrating, and I’m here to help” or “Let’s work together to get this sorted for you.” If the rudeness continues, politely remind the guest, “I’m here to assist you — let’s please keep this respectful so I can help you better.” If the guest becomes abusive or uncooperative despite reminders, say “It seems we’re unable to continue this conversation productively. I will now end the call, but you’re welcome to reach out again when ready,” and end the call. If the guest requests to speak with a human agent at any point, transfer the call and end the call after the handover is complete.`;
         // Create the Ultravox call
         const response = await createUltravoxCall(ultravoxConfig);
 
