@@ -4,6 +4,7 @@ import path from 'path';
 import { router as plivoRoutes } from './routes/plivo.js';
 import {router as twilioRoutes} from './routes/steve-twilio.js';
 import {router as anikaTwilioRoutes} from './routes/anika-twilio.js';
+import ultravoxRouter from './routes/ultravox-webhook.js'
 import googleAuthRoutes from './routes/googleAuth.js';
 import emailToolRoutes from './routes/emailTool.js';
 import calendarRoutes from './routes/calendarRoutes.js';
@@ -41,6 +42,7 @@ app.use("/anika-twilio/", anikaTwilioRoutes);
 app.use('/tools/calendar', calendarRoutes);
 app.use('/tools/sheets', googleSheetRoutes)
 app.use('/tools/whatsapp', whatsappRoutes);
+app.use('/ultravox', ultravoxRouter);
 
 // Start server
 app.listen(port, () => {
