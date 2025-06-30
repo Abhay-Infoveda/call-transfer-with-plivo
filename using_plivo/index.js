@@ -13,12 +13,20 @@ import authRoutes from './routes/authRoutes.js'
 import userRoutes from './routes/userRoutes.js'
 import googleSheetRoutes from './routes/googleSheet.js'
 import whatsappRoutes from './routes/whatsapp.js';
+import cors from 'cors'; // Import the cors package
 
-// dbConnect();
+dbConnect();
 
 const port = process.env.PORT || 8080;
 const app = express();
 const __dirname = path.resolve();
+
+// CORS configuration
+const corsOptions = {
+  origin: 'http://localhost:3000', // Allow only your frontend to connect
+  optionsSuccessStatus: 200 // For legacy browser support
+};
+app.use(cors(corsOptions));
 
 // Serve static files (if needed for CSS/JS)
 app.use(express.static(path.join(__dirname, 'public')));
