@@ -1,22 +1,23 @@
 import express from 'express';
 import verifyToken from '../middlewares/authMiddleware.js'
 import authorizeRoles from '../middlewares/roleMiddleware.js';
+import userController from '../controllers/userController.js';
 
 const router = express.Router();
 
-// Only admin can access this route
-router.get("/admin", verifyToken, authorizeRoles("admin"),(req, res) => {
-    res.json({message: "Welcome Admin"});
-})
+// List all users (admin only)
+router.get('/', verifyToken, authorizeRoles('admin'), userController.getUsers);
 
-// Both admin and manager can access this route
-router.get("/manager", verifyToken, authorizeRoles("admin", "manager"), (req, res) => {
-    res.json({message: "Welcome Manager"});
-})
+// Get a single user by ID (admin only)
+router.get('/:id', verifyToken, authorizeRoles('admin'), userController.getUserById);
 
-// All can access this route
-router.get("/user", verifyToken, authorizeRoles("admin", "manager", "user"),(req, res) => {
-    res.json({message: "Welcome User"});
-})
+// Create a new user (admin only)
+router.post('/', verifyToken, authorizeRoles('admin'), userController.createUser);
+
+// Update a user (admin only)
+router.put('/:id', verifyToken, authorizeRoles('admin'), userController.updateUser);
+
+// Delete a user (admin only)
+router.delete('/:id', verifyToken, authorizeRoles('admin'), userController.deleteUser);
 
 export default router;
