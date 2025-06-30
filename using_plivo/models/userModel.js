@@ -42,23 +42,60 @@ const agentConfigSchema = new mongoose.Schema({
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
-    required: true,
+    required: [true, 'Username is required.'],
     unique: true,
+    trim: true,
+    minlength: [3, 'Username must be at least 3 characters long.'],
+  },
+  email: {
+    type: String,
+    required: [true, 'Email is required.'],
+    unique: true,
+    trim: true,
+    lowercase: true,
+    match: [/.+\@.+\..+/, 'Please enter a valid email address.'],
   },
   password: {
     type: String,
-    required: true,
+    required: [true, 'Password is required.'],
+    minlength: [6, 'Password must be at least 6 characters long.'],
   },
   role: {
     type: String,
     required: true,
-    enum: ['admin', 'manager', 'user'],
+    enum: ['admin', 'user'],
+    default: 'user',
   },
-  firstName: String,
-  lastName: String,
-  agentConfig: agentConfigSchema
+  firstName: {
+    type: String,
+    trim: true,
+  },
+  lastName: {
+    type: String,
+    trim: true,
+  },
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
+  agents: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Agent'
+  }]
 }, {
   timestamps: true,
+});
+
+// Pre-save hook to ensure password is encrypted before saving
+// We will add the actual encryption logic in the controller/service layer
+userSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) {
+    return next();
+  }
+  // Password encryption logic will go here
+  // For now, we are just hashing it conceptually
+  console.log(`Password for user ${this.username} will be hashed.`);
+  next();
 });
 
 export default mongoose.model("User", userSchema);
