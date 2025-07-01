@@ -14,6 +14,8 @@ import userRoutes from './routes/userRoutes.js'
 import googleSheetRoutes from './routes/googleSheet.js'
 import whatsappRoutes from './routes/whatsapp.js';
 import cors from 'cors'; // Import the cors package
+import toolRoutes from './routes/toolRoutes.js'; // Import tool routes
+import agentRoutes from './routes/agentRoutes.js'; // Import agent routes
 
 dbConnect();
 
@@ -42,6 +44,8 @@ app.use(express.urlencoded({ extended: true }));
 // Auth and API routes
 app.use("/api/auth", authRoutes)
 app.use("/api/users", userRoutes)
+app.use('/api/tools', toolRoutes); // Use tool routes
+app.use('/api/agents', agentRoutes); // Use agent routes
 app.use('/', googleAuthRoutes);
 app.use('/email', emailToolRoutes);
 app.use('/plivo/', plivoRoutes);

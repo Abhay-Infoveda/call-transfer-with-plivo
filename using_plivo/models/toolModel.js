@@ -11,7 +11,11 @@ const parameterSchema = new mongoose.Schema({
 
 const httpSchema = new mongoose.Schema({
   baseUrlPattern: { type: String, required: true, trim: true },
-  httpMethod: { type: String, required: true, enum: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'] }
+  httpMethod: { type: String, required: true, enum: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'] },
+  headers: {
+    type: Map,
+    of: String,
+  }
 }, { _id: false });
 
 const toolSchema = new mongoose.Schema({

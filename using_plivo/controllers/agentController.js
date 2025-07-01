@@ -21,7 +21,10 @@ export const updateAgentConfig = async (req, res) => {
 // @desc    Create a new agent
 // @route   POST /api/agents
 // @access  Private
-const createAgent = async (req, res) => {
+export const createAgent = async (req, res) => {
+  console.log('[AGENT CONTROLLER] Received request to create agent.');
+  console.log('[AGENT CONTROLLER] Request Body:', req.body);
+
   const { name, description, systemPrompt, voice, temperature, tools } = req.body;
 
   try {
@@ -31,7 +34,10 @@ const createAgent = async (req, res) => {
       $or: [{ createdBy: req.user.id }, { isPublic: true }]
     });
 
+    console.log(`[AGENT CONTROLLER] Found ${userTools.length} valid tools out of ${tools.length} requested.`);
+
     if (userTools.length !== tools.length) {
+      console.error('[AGENT CONTROLLER] Error: Tool validation failed.');
       return res.status(400).json({ message: 'One or more provided tools are invalid or not accessible.' });
     }
 
@@ -45,15 +51,20 @@ const createAgent = async (req, res) => {
       owner: req.user.id,
     });
 
+    console.log('[AGENT CONTROLLER] Attempting to save new agent...');
     const createdAgent = await agent.save();
+    console.log('[AGENT CONTROLLER] Agent saved successfully:', createdAgent);
 
     // Add agent to user's list of agents
     const user = await User.findById(req.user.id);
     user.agents.push(createdAgent._id);
+    console.log('[AGENT CONTROLLER] Attempting to update user with new agent...');
     await user.save();
+    console.log('[AGENT CONTROLLER] User updated successfully.');
 
     res.status(201).json(createdAgent);
   } catch (error) {
+    console.error('[AGENT CONTROLLER] An error occurred:', error);
     if (error.code === 11000) {
       return res.status(400).json({ message: `An agent with the name '${name}' already exists.` });
     }
@@ -64,7 +75,7 @@ const createAgent = async (req, res) => {
 // @desc    Get all agents for the logged-in user
 // @route   GET /api/agents
 // @access  Private
-const getAgents = async (req, res) => {
+export const getAgents = async (req, res) => {
   try {
     const agents = await Agent.find({ owner: req.user.id }).populate('tools', 'name description');
     res.json(agents);
@@ -76,7 +87,7 @@ const getAgents = async (req, res) => {
 // @desc    Get a single agent by ID
 // @route   GET /api/agents/:id
 // @access  Private
-const getAgentById = async (req, res) => {
+export const getAgentById = async (req, res) => {
   try {
     const agent = await Agent.findById(req.params.id).populate('tools');
 
@@ -98,7 +109,7 @@ const getAgentById = async (req, res) => {
 // @desc    Update an agent
 // @route   PUT /api/agents/:id
 // @access  Private
-const updateAgent = async (req, res) => {
+export const updateAgent = async (req, res) => {
   try {
     const agent = await Agent.findById(req.params.id);
 
@@ -146,7 +157,7 @@ const updateAgent = async (req, res) => {
 // @desc    Delete an agent
 // @route   DELETE /api/agents/:id
 // @access  Private
-const deleteAgent = async (req, res) => {
+export const deleteAgent = async (req, res) => {
   try {
     const agent = await Agent.findById(req.params.id);
 
@@ -171,12 +182,4 @@ const deleteAgent = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Error deleting agent', error: error.message });
   }
-};
-
-export default {
-  createAgent,
-  getAgents,
-  getAgentById,
-  updateAgent,
-  deleteAgent,
 };
