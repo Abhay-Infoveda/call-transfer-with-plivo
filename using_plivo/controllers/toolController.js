@@ -165,6 +165,7 @@ const ingestRagDoc = async (req, res) => {
     let filePath = '';
     let fileType = '';
     const userId = req.user.id;
+    const embeddingProvider = req.body.embeddingProvider || 'fastembed';
 
     if (req.file) {
       // File upload case
@@ -220,7 +221,8 @@ const ingestRagDoc = async (req, res) => {
       filePath,
       fileType,
       userId,
-      extractedText
+      extractedText,
+      embeddingProvider
     });
     console.log(`[RAG] Metadata saved to MongoDB for file: ${filePath}`);
     res.status(201).json(doc);

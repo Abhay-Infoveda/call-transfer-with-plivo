@@ -17,6 +17,12 @@ const ragDocSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
+  },
+  embeddingProvider: {
+    type: String,
+    required: true,
+    enum: ['fastembed', 'huggingface'],
+    default: 'fastembed'
   }
 }, {
   timestamps: true
