@@ -146,7 +146,7 @@ const getRagDocs = async (req, res) => {
 const queryRagDocs = async (req, res) => {
   const { query } = req.body;
   try {
-    const docs = await ragTool.queryDocs(query);
+    const docs = await ragTool.queryDocs(query, req.user.id);
     res.json(docs);
   } catch (error) {
     res.status(500).json({ message: 'Error querying RAG docs', error: error.message });
