@@ -16,6 +16,7 @@ import whatsappRoutes from './routes/whatsapp.js';
 import cors from 'cors'; // Import the cors package
 import toolRoutes from './routes/toolRoutes.js'; // Import tool routes
 import agentRoutes from './routes/agentRoutes.js'; // Import agent routes
+import { router as twilioOutboundRouter } from './routes/twilioOutbound.js';
 
 dbConnect();
 
@@ -55,6 +56,7 @@ app.use('/tools/calendar', calendarRoutes);
 app.use('/tools/sheets', googleSheetRoutes)
 app.use('/tools/whatsapp', whatsappRoutes);
 app.use('/ultravox', ultravoxRouter);
+app.use('/twilio-outbound', twilioOutboundRouter);
 
 // Start server
 app.listen(port, () => {
