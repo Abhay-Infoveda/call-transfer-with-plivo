@@ -58,3 +58,4 @@ const ToolTable = ({ tools, onEdit, onDelete }: ToolTableProps) => {
 };
 
 export default ToolTable;
+ 

@@ -1,7 +1,7 @@
-import { redirect } from 'next/navigation';
+"use client";
+
+import LandingPage from './components/LandingPage';
 
 export default function HomePage() {
-  redirect('/users');
-  // Return null as redirect will prevent rendering, but a return is needed.
-  return null;
+  return <LandingPage />;
 }

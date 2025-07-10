@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { jwtDecode } from 'jwt-decode';
 
 interface AuthContextType {
   token: string | null;
@@ -34,13 +35,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = (newToken: string) => {
     setToken(newToken);
     localStorage.setItem('authToken', newToken);
-    router.push('/users');
+    // Navigation is now handled in the login/register page
   };
 
   const logout = () => {
     setToken(null);
     localStorage.removeItem('authToken');
-    router.push('/login');
+    router.push('/auth');
   };
 
   const isAuthenticated = !!token;
