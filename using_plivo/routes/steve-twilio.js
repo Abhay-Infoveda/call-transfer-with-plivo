@@ -107,9 +107,14 @@ router.post('/incoming/steve', async (req, res) => {
             name: 'ultravox'
         });
 
-        const twimlString = twiml.toString();
-        res.type('text/xml');
-        res.send(twimlString);
+         res.type('text/xml').send(twiml.toString());
+
+        // --- Step 2: Start the recording via REST API ---
+        console.log(`Starting recording for call: ${twilioCallSid}`);
+        await client.calls(twilioCallSid).recordings.create({
+            recordingChannels: 'dual' // Use 'mono' if you want a single channel
+        });
+        console.log(`Recording started for call: ${twilioCallSid}`);
 
     } catch (error) {
         console.error('Error handling incoming call:', error);
