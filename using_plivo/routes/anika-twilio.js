@@ -151,7 +151,7 @@ router.post('/incoming/anika', async (req, res) => {
         });
 
         const twiml = new twilio.twiml.VoiceResponse();
-        const connect = twiml.connect();
+        const connect = twiml.connect(record: 'record-from-answer');
         connect.stream({
             url: response.joinUrl,
             name: 'ultravox'
