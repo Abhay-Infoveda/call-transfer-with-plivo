@@ -151,22 +151,25 @@ router.post('/incoming/anika', async (req, res) => {
         });
 
         const twiml = new twilio.twiml.VoiceResponse();
-        const connect = twiml.connect();
+        const connect = twiml.connect(); // No record attribute here
         connect.stream({
             url: response.joinUrl,
             name: 'ultravox'
         });
 
-        const twimlString = twiml.toString();
-        res.type('text/xml');
-        res.send(twimlString);
+        res.type('text/xml').send(twiml.toString());
+
+        // --- Step 2: Start the recording via REST API ---
+        console.log(`Starting recording for call: ${twilioCallSid}`);
+        await client.calls(twilioCallSid).recordings.create({
+            recordingChannels: 'dual' // Use 'mono' if you want a single channel
+        });
+        console.log(`Recording started for call: ${twilioCallSid}`);
 
     } catch (error) {
         console.error('Error handling incoming call:', error);
-        const twiml = new twilio.twiml.VoiceResponse();
-        twiml.say('Sorry, there was an error connecting your call.');
-        res.type('text/xml');
-        res.send(twiml.toString());
+        // We can't send a TwiML response here because we might have already sent one.
+        // Just log the error.
     }
 });
 

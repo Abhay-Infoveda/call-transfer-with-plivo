@@ -37,7 +37,7 @@ export async function createUltravoxCall(callConfig) {
           try {
             const jsonData = JSON.parse(data);
             console.log('Ultravox API Response:', JSON.stringify(jsonData, null, 2));
-            resolve(jsonData);
+            resolve({ joinUrl: jsonData.joinUrl, callId: jsonData.callId });
           } catch (e) {
             console.error('Error parsing JSON response:', e);
             console.error('Raw response data:', data);
@@ -100,4 +100,34 @@ export async function getCallTranscript(callId) {
     console.error('Error fetching Ultravox messages:', error.message);
     throw error;
   }
+}
+
+/**
+ * Fetches the short and long summary for a call from Ultravox API
+ * @param {string} callId - The Ultravox call ID
+ * @returns {Promise<{ shortSummary: string|null, summary: string|null }>} - The summaries
+ */
+export async function get_summary(callId) {
+  const ULTRAVOX_API_KEY = process.env.ULTRAVOX_API_KEY;
+  const ULTRAVOX_API_URL = 'https://api.ultravox.ai/api';
+  const url = `${ULTRAVOX_API_URL}/calls/${callId}`;
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-API-Key': ULTRAVOX_API_KEY
+    }
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Ultravox API error: ${response.status} ${errorText}`);
+  }
+
+  const data = await response.json();
+  return {
+    shortSummary: data.shortSummary || null,
+    summary: data.summary || null
+  };
 }

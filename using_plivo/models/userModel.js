@@ -81,6 +81,10 @@ const userSchema = new mongoose.Schema({
   agents: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Agent'
+  }],
+  projects: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Project'
   }]
 }, {
   timestamps: true,

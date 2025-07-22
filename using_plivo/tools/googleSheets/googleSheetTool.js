@@ -3,8 +3,11 @@ import fs from 'fs';
 
 // Fixed values
 const userEmail = 'abhay.pancholi@infovedasolutions.com';
-const spreadsheetId = '1tNMwONsEjskVONDDAyrOyf9wBsUgI2mxfM2QK_jvTkk';
-const sheetName = 'bookings';
+// const spreadsheetId = '1tNMwONsEjskVONDDAyrOyf9wBsUgI2mxfM2QK_jvTkk';
+// const sheetName = 'bookings';
+
+const spreadsheetId = '1m532VMO72zIh7z3stztpbpEHp-TMT_m2QKMT_sfCnlg';
+const sheetName = 'Customer_due_pay_details'
 
 // Accepts a single JSON object with booking values
 export async function appendToSheet(bookingData) {
@@ -24,11 +27,9 @@ export async function appendToSheet(bookingData) {
   // Map bookingData to the correct order: phone_number, restaurant, guests, time, date, name
   const values = [
     bookingData.phone_number || '',
-    bookingData.restaurant || '',
-    bookingData.guests || '',
-    bookingData.time || '',
-    bookingData.date || '',
-    bookingData.name || ''
+    bookingData.name || '',
+    bookingData.payment_overdue_reason || '',
+    bookingData.due_pay_date || ''
   ];
 
   console.log('Appending to range:', sheetName);

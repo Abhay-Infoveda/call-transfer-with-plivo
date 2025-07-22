@@ -12,7 +12,7 @@ router.route('/')
   .get(agentController.getAgents);
 
 router.route('/:id')
-  .get(agentController.getAgentById)
+  .get(agentController.getAgent)
   .put(agentController.updateAgent)
   .delete(agentController.deleteAgent);
 

@@ -44,6 +44,11 @@ const agentSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
+  projectId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Project',
+    required: false, // Optional for backward compatibility
+  },
   tools: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Tool'
