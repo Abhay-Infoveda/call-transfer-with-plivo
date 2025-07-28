@@ -4,13 +4,17 @@ const userTokenSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
+    required: true
+  },
+  provider: {
+    type: String,
     required: true,
-    unique: true
+    enum: ['google', 'zoho'],
+    default: 'google'
   },
   email: {
     type: String,
     required: true,
-    unique: true,
     lowercase: true
   },
   refreshToken: {
@@ -42,8 +46,8 @@ const userTokenSchema = new mongoose.Schema({
 });
 
 // Index for faster queries
-userTokenSchema.index({ userId: 1 });
-userTokenSchema.index({ email: 1 });
+userTokenSchema.index({ userId: 1, provider: 1 });
+userTokenSchema.index({ email: 1, provider: 1 });
 
 // Pre-save hook to encrypt refresh token (you should implement encryption)
 userTokenSchema.pre('save', async function(next) {

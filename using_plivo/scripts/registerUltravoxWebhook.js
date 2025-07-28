@@ -9,7 +9,7 @@ import 'dotenv/config';
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      url: 'https://20208d464080.ngrok-free.app/ultravox/webhook',
+      url: 'https://256fa192a489.ngrok-free.app/ultravox/webhook',
       events: ['call.ended']
     })
   });

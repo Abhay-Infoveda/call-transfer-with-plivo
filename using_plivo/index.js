@@ -20,6 +20,8 @@ import { router as twilioOutboundRouter } from './routes/twilioOutbound.js';
 import projectRoutes from './routes/projectRoutes.js';
 import projectAgentRoutes from './routes/projectAgentRoutes.js';
 import openaiTwilioExpressRouter, { setupWebSocketServer } from './routes/openai-twilio-express.js';
+import zohoAuthRoutes from './routes/zohoAuthRoutes.js';
+import zohoRoutes from './routes/zohoRoutes.js';
 import http from 'http';
 
 dbConnect();
@@ -63,6 +65,8 @@ app.use('/ultravox', ultravoxRouter);
 app.use('/twilio-outbound', twilioOutboundRouter);
 app.use('/api/projects', projectRoutes);
 app.use('/api/projects', projectAgentRoutes);
+app.use('/api/auth/zoho', zohoAuthRoutes);
+app.use('/api/zoho', zohoRoutes);
 app.use('/openai-twilio-express', openaiTwilioExpressRouter);
 
 // Register the HTTP routes
