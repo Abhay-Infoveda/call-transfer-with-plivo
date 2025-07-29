@@ -113,7 +113,7 @@ router.post('/incoming/anika', async (req, res) => {
 
         - The caller's phone number is: **${callerNumber}**.
         - Ask the patient if **${callerNumber}** is their **WhatsApp number** (repeat the number very very slowly and clearly, digit by digit) where the appointment confirmation can be sent.
-        - While repeating number very very slowly use this format:- Country code - digit_1--digit_2--digit_3--digit_4--digit_5--digit_6--digit_7--digit_8--digit_9--digit_10.
+        - While repeating number very very slowly use this format:- Country code - digit_1--digit_2--digit_3--digit_4--digit_5--digit_6--digit_7--digit_8--digit_9--digit_10. **Do not say the word "digit" just call out the phone number digits one by one**.
         - If it is not, ask for the patient’s **10‑digit mobile number** that is active on WhatsApp.
         - Ensure the number has **10 digits** (and the country code for e.g., '+91').
         - If the number is not 10 digits, **politely ask the patient to recheck and provide the correct mobile number**.
@@ -181,10 +181,15 @@ router.post('/incoming/anika', async (req, res) => {
             name: 'ultravox'
         });
 
-        const twimlString = twiml.toString();
-        res.type('text/xml');
-        res.send(twimlString);
+         res.type('text/xml').send(twiml.toString());
 
+        // --- Step 2: Start the recording via REST API ---
+        console.log(`Starting recording for call: ${twilioCallSid}`);
+        await client.calls(twilioCallSid).recordings.create({
+            recordingChannels: 'dual' // Use 'mono' if you want a single channel
+        });
+        console.log(`Recording started for call: ${twilioCallSid}`);
+        
     } catch (error) {
         console.error('Error handling incoming call:', error);
         const twiml = new twilio.twiml.VoiceResponse();
