@@ -12,27 +12,46 @@ const router = express.Router();
 // TODO replace this with something more durable
 const activeCalls = new Map();
 
-async function transferActiveCall(callSid) {
+// Transfer destination mapping
+const TRANSFER_DESTINATIONS = {
+    sales: process.env.SALES_PHONE_NUMBER || process.env.DESTINATION_PHONE_NUMBER,
+    support: process.env.SUPPORT_PHONE_NUMBER || process.env.DESTINATION_PHONE_NUMBER,
+    supervisor: process.env.SUPERVISOR_PHONE_NUMBER || process.env.DESTINATION_PHONE_NUMBER,
+    billing: process.env.BILLING_PHONE_NUMBER || process.env.DESTINATION_PHONE_NUMBER,
+    general: process.env.DESTINATION_PHONE_NUMBER
+};
+
+async function transferActiveCall(callSid, transferType = 'general') {
     try {
-        //   console.log(`[Transfer] Initiating transfer for call ${callSid} to ${agentNumber}`);
+        console.log(`[Transfer] Initiating transfer for call ${callSid} to ${transferType} team`);
     
         // Get call details
         const callData = activeCalls.get(callSid);
         if (!callData || !callData.twilioCallSid) {
-        throw new Error('Call not found or invalid CallSid');
+            throw new Error('Call not found or invalid CallSid');
         }
+        
         const twilio_call_sid = callData.twilioCallSid;
         const call = await client.calls(twilio_call_sid).fetch();
-        const conferenceName = `transfer_${twilio_call_sid}`;
+        const conferenceName = `transfer_${twilio_call_sid}_${transferType}`;
         const callerNumber = call.to;
+
+        // Get destination number based on transfer type
+        const destinationNumber = TRANSFER_DESTINATIONS[transferType] || TRANSFER_DESTINATIONS.general;
+        
+        if (!destinationNumber) {
+            throw new Error(`No destination number configured for transfer type: ${transferType}`);
+        }
+
+        console.log(`[Transfer] Routing to ${transferType} team at ${destinationNumber}`);
 
         // Move caller to a conference room
         const customerTwiml = new twilio.twiml.VoiceResponse();
-        customerTwiml.say("Please hold while we connect you to an agent.");
+        customerTwiml.say(`Please hold while we connect you to our ${transferType} team.`);
         customerTwiml.dial().conference({
-        startConferenceOnEnter: false,
-        endConferenceOnExit: false,
-        waitUrl: "http://twimlets.com/holdmusic?Bucket=com.twilio.music.classical",
+            startConferenceOnEnter: false,
+            endConferenceOnExit: false,
+            waitUrl: "http://twimlets.com/holdmusic?Bucket=com.twilio.music.classical",
         }, conferenceName);
 
         console.log(`[Transfer] Updating call ${twilio_call_sid} with conference TwiML`);
@@ -41,32 +60,37 @@ async function transferActiveCall(callSid) {
         console.log(`[Transfer] Caller ${callerNumber} placed in conference ${conferenceName}`);
 
         // Call the agent and connect them to the same conference
-        //   console.log(`[Transfer] Creating outbound call to agent ${agentNumber}`);
         const agentCall = await client.calls.create({
-        to: destinationNumber,
-        from: +17654417424,
-        twiml: `
-            <Response>
-            <Say>You are being connected to a caller who was speaking with our AI assistant.</Say>
-            <Dial>
-                <Conference startConferenceOnEnter="true" endConferenceOnExit="true" beep="false">
-                ${conferenceName}
-                </Conference>
-            </Dial>
-            </Response>
-        `
+            to: destinationNumber,
+            from: +17654417424,
+            twiml: `
+                <Response>
+                <Say>You are being connected to a caller who was speaking with our AI assistant. They requested to speak with the ${transferType} team.</Say>
+                <Dial>
+                    <Conference startConferenceOnEnter="true" endConferenceOnExit="true" beep="false">
+                    ${conferenceName}
+                    </Conference>
+                </Dial>
+                </Response>
+            `
         });
 
-        console.log(`[Transfer] Outbound call to agent created: ${agentCall.sid}`);
+        console.log(`[Transfer] Outbound call to ${transferType} team created: ${agentCall.sid}`);
 
         activeCalls.set(callSid, {
-        status: "transferring",
-        conferenceName,
-        agentCallSid: agentCall.sid,
-        destinationNumber,
+            status: "transferring",
+            conferenceName,
+            agentCallSid: agentCall.sid,
+            destinationNumber,
+            transferType
         });
 
-        return { success: true, agentCallSid: agentCall.sid };
+        return { 
+            success: true, 
+            agentCallSid: agentCall.sid,
+            transferType,
+            destinationNumber
+        };
     } catch (error) {
         console.error("[Transfer] Error transferring call:", error);
         console.error("[Transfer] Full error details:", error.stack);
@@ -172,11 +196,11 @@ router.post('/incoming/anika', async (req, res) => {
 
 // Handle transfer of calls to another number
 router.post('/transferCall', async (req, res) => {
-    const { callId } = req.body;
-    console.log(`Request to transfer call with callId: ${callId}`);
+    const { callId, transferType } = req.body;
+    console.log(`Request to transfer call with callId: ${callId} to ${transferType} team`);
 
     try {
-        const result = await transferActiveCall(callId);
+        const result = await transferActiveCall(callId, transferType);
         res.json(result);
     } catch (error) {
         res.status(500).json(error);

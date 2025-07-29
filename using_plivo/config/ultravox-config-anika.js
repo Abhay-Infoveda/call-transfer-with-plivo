@@ -130,7 +130,7 @@ const selectedTools = [
   {
     "temporaryTool": {
       "modelToolName": "transferCall",
-      "description": "Transfers call to a human. Use this to finalize booking an appointment or if there are questions you cannot answer.",
+      "description": "Transfers call to a human agent. Specify the department/team the caller wants to speak with: 'sales' for sales team, 'support' for technical support, 'supervisor' for management, 'billing' for billing issues, or 'general' for general inquiries.",
       "automaticParameters": [
         {
           "name": "callId",
@@ -163,6 +163,16 @@ const selectedTools = [
           "schema": {
             "description": "The caller's phone number",
             "type": "string",
+          },
+          "required": true,
+        },
+        {
+          "name": "transferType",
+          "location": "PARAMETER_LOCATION_BODY",
+          "schema": {
+            "description": "The department or team to transfer the call to. Options: 'sales' for sales team, 'support' for technical support, 'supervisor' for management, 'billing' for billing issues, 'general' for general inquiries.",
+            "type": "string",
+            "enum": ["sales", "support", "supervisor", "billing", "general"]
           },
           "required": true,
         },
