@@ -302,6 +302,8 @@ export function setupWebSocketServer(server) {
         let responseStartTimestampTwilio = null;
         let keepAliveInterval = null;
         let lastActivityTime = Date.now();
+        let agentReady = false;
+        let initialGreetingSent = false;
 
         const openAiWs = new WebSocket('wss://api.openai.com/v1/realtime?model=gpt-4o-mini-realtime-preview-2024-12-17', {
             headers: {
@@ -354,7 +356,7 @@ export function setupWebSocketServer(server) {
                     input_audio_format: 'g711_ulaw',
                     output_audio_format: 'g711_ulaw',
                     voice: VOICE,
-                    instructions: SYSTEM_MESSAGE,
+                    instructions: "CRITICAL: Start the conversation immediately when the session begins. Begin with your greeting in Marathi: 'नमस्कार! मी पद्मा, तुमची सहायिका...' Do not wait for any user input - speak first. You MUST speak immediately when the session starts - do not wait for the user to speak first.\n\n"+SYSTEM_MESSAGE,
                     modalities: ["text", "audio"],
                     temperature: 0.8,
                     tools: TOOLS
@@ -363,6 +365,34 @@ export function setupWebSocketServer(server) {
 
             console.log('Sending session update:', JSON.stringify(sessionUpdate));
             openAiWs.send(JSON.stringify(sessionUpdate));
+            
+            // Mark agent as ready after session initialization
+            setTimeout(() => {
+                agentReady = true;
+                console.log('Agent is now ready');
+                
+                // Send immediate greeting if stream is active
+                if (streamSid && !initialGreetingSent) {
+                    sendImmediateGreeting();
+                }
+            }, 100); // Even faster response
+        };
+        
+        // Send immediate greeting when agent is ready
+        const sendImmediateGreeting = () => {
+            if (agentReady && streamSid && !initialGreetingSent) {
+                console.log('Sending immediate greeting trigger');
+                initialGreetingSent = true;
+                
+                // Send a minimal audio buffer to trigger the agent to speak immediately
+                const audioUint8Array = new Uint8Array(160).fill(128);
+                const audioBase64 = Buffer.from(audioUint8Array).toString('base64');
+                const triggerMessage = {
+                    type: 'input_audio_buffer.append',
+                    audio: audioBase64
+                };
+                openAiWs.send(JSON.stringify(triggerMessage));
+            }
         };
 
         // Handle interruption when the caller's speech starts
@@ -412,6 +442,17 @@ export function setupWebSocketServer(server) {
             console.log('Connected to the OpenAI Realtime API');
             setTimeout(initializeSession, 100);
             startKeepAlive(); // Start keep-alive mechanism
+            
+            // Mark agent as ready immediately
+            setTimeout(() => {
+                agentReady = true;
+                console.log('Agent is now ready');
+                
+                // Send immediate greeting if stream is active
+                if (streamSid && !initialGreetingSent) {
+                    sendImmediateGreeting();
+                }
+            }, 200);
         });
 
         // Listen for messages from the OpenAI WebSocket (and send to Twilio if necessary)
@@ -511,6 +552,13 @@ export function setupWebSocketServer(server) {
                         // Reset start and media timestamp on a new stream
                         responseStartTimestampTwilio = null; 
                         latestMediaTimestamp = 0;
+                        
+                        // Send immediate greeting if agent is ready
+                        if (agentReady && !initialGreetingSent) {
+                            setTimeout(() => {
+                                sendImmediateGreeting();
+                            }, 500); // Reduced delay for faster response
+                        }
                         break;
                     case 'mark':
                         if (markQueue.length > 0) {
