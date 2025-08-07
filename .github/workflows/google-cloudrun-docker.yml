@@ -51,6 +51,7 @@ jobs:
           service: '${{ env.BACKEND_SERVICE }}'
           region: '${{ env.REGION }}'
           image: '${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/backend:${{ github.sha }}'
+          timeout: 3600
 
       # Show Deployment URLs
       - name: 'Show Cloud Run URLs'
