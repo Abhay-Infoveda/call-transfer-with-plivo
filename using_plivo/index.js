@@ -1,9 +1,11 @@
 import express from 'express';
 import 'dotenv/config';
 import path from 'path';
+import { createServer } from 'http';
 import { router as plivoRoutes } from './routes/plivo.js';
 import {router as twilioRoutes} from './routes/steve-twilio.js';
 import {router as anikaTwilioRoutes} from './routes/anika-twilio.js';
+import openaiTwilioRoutes, { setupWebSocketServer } from './routes/openai-twilio-express.js';
 import ultravoxRouter from './routes/ultravox-webhook.js'
 import googleAuthRoutes from './routes/googleAuth.js';
 import emailToolRoutes from './routes/emailTool.js';
@@ -43,8 +45,14 @@ app.use('/tools/calendar', calendarRoutes);
 app.use('/tools/sheets', googleSheetRoutes)
 app.use('/tools/whatsapp', whatsappRoutes);
 app.use('/ultravox', ultravoxRouter);
+app.use('/openai-twilio', openaiTwilioRoutes);
+// Create HTTP server
+const server = createServer(app);
+
+// Setup WebSocket server for OpenAI Twilio integration
+setupWebSocketServer(server);
 
 // Start server
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
