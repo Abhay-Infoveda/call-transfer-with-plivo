@@ -309,7 +309,10 @@ export function setupWebSocketServer(server) {
             headers: {
                 Authorization: `Bearer ${OPENAI_API_KEY}`,
                 "OpenAI-Beta": "realtime=v1"
-            }
+            },
+            // Add ping/pong for production stability
+            pingInterval: 30000, // 30 seconds
+            pingTimeout: 10000   // 10 seconds
         });
 
         // Keep-alive mechanism to prevent idle timeouts
@@ -319,7 +322,7 @@ export function setupWebSocketServer(server) {
                 clearInterval(keepAliveInterval);
             }
             
-            // Send keep-alive every 10 minutes to prevent idle timeouts
+            // Send keep-alive every 4 minutes to prevent production timeouts
             keepAliveInterval = setInterval(() => {
                 if (openAiWs.readyState === WebSocket.OPEN) {
                     try {
@@ -337,7 +340,7 @@ export function setupWebSocketServer(server) {
                         console.error('Error sending keep-alive:', error);
                     }
                 }
-            }, 10 * 60 * 1000); // 10 minutes
+            }, 4 * 60 * 1000); // 4 minutes (more aggressive for production)
         };
 
         const stopKeepAlive = () => {
@@ -594,8 +597,34 @@ export function setupWebSocketServer(server) {
                 console.log('Normal closure');
             } else if (code === 1006) {
                 console.log('Abnormal closure - possible network issue or timeout');
+            } else if (code === 1001) {
+                console.log('Going away - server restart or maintenance');
+            } else if (code === 1002) {
+                console.log('Protocol error');
+            } else if (code === 1003) {
+                console.log('Unsupported data type');
+            } else if (code === 1005) {
+                console.log('No status code - abnormal closure');
+            } else if (code === 1007) {
+                console.log('Invalid frame payload data');
+            } else if (code === 1008) {
+                console.log('Policy violation');
+            } else if (code === 1009) {
+                console.log('Message too big');
+            } else if (code === 1010) {
+                console.log('Client terminating');
+            } else if (code === 1011) {
+                console.log('Server error');
+            } else if (code === 1012) {
+                console.log('Service restart');
+            } else if (code === 1013) {
+                console.log('Try again later');
+            } else if (code === 1014) {
+                console.log('Bad gateway');
+            } else if (code === 1015) {
+                console.log('TLS handshake failure');
             } else {
-                console.log(`Closure code: ${code} - ${reason}`);
+                console.log(`Unknown closure code: ${code} - ${reason}`);
             }
         });
 

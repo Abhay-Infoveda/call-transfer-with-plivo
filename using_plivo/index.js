@@ -54,7 +54,11 @@ const server = createServer(app);
 // Setup WebSocket server for OpenAI Twilio integration
 setupWebSocketServer(server);
 
+// Configure server timeouts for production
+server.keepAliveTimeout = 65000; // 65 seconds
+server.headersTimeout = 66000; // 66 seconds
+
 // Start server
 server.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+    console.log(`Server is running on port ${port}`);
 });
