@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { createServer } from 'http';
 import { appendToSheet } from '../tools/googleSheets/googleSheetTool.js';
 import { saveTranscript } from '../tools/googleSheets/Save_transcript.js';
+import { getWeather, getWeatherForecast } from '../tools/weather/getWeather.js';
 
 // Load environment variables
 dotenv.config();
@@ -189,34 +190,40 @@ const SHOW_TIMING_MATH = false;
 const TOOLS = [
   {
     type: "function",
-    name: "Save_Booking_Details",
-    description: "Save the booking details to Google Sheets",
+    name: "get_current_weather",
+    description: "Get the current weather for a specific city",
     parameters: {
       type: "object",
       properties: {
-        phone_number: { type: "string", description: "The caller's phone number" },
-        restaurant: { type: "string", description: "Restaurant at which the table is booked" },
-        guests: { type: "string", description: "Number of guests attending" },
-        time: { type: "string", description: "Time at which the restaurant is booked" },
-        date: { type: "string", description: "Date for which the restaurant is booked" },
-        name: { type: "string", description: "Name of the guest making the booking" }
+        city: { 
+          type: "string", 
+          description: "The city name to get weather for (e.g., 'London', 'New York', 'Mumbai')" 
+        }
       },
-      required: ["phone_number", "restaurant", "guests", "time", "date", "name"]
+      required: ["city"]
     }
   },
   {
     type: "function",
-    name: "Save_transcript",
-    description: "Save the transcript of a call to Google Sheets",
+    name: "get_weather_forecast",
+    description: "Get weather forecast for a specific city for the next few days",
     parameters: {
       type: "object",
       properties: {
-        callid: { type: "string", description: "The call ID" }
+        city: { 
+          type: "string", 
+          description: "The city name to get weather forecast for (e.g., 'London', 'New York', 'Mumbai')" 
+        },
+        days: { 
+          type: "number", 
+          description: "Number of days for forecast (1-5 days, default is 5)",
+          minimum: 1,
+          maximum: 5
+        }
       },
-      required: ["callid"]
+      required: ["city"]
     }
-  }
-  // Add more tools here as needed
+  },
 ];
 
 // Route for Twilio to handle incoming calls
@@ -247,13 +254,50 @@ export function setupWebSocketServer(server) {
         let lastAssistantItem = null;
         let markQueue = [];
         let responseStartTimestampTwilio = null;
+        let keepAliveInterval = null;
+        let lastActivityTime = Date.now();
 
-        const openAiWs = new WebSocket('wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview', {
+        const openAiWs = new WebSocket('wss://api.openai.com/v1/realtime?model=gpt-4o-mini-realtime-preview-2024-12-17', {
             headers: {
                 Authorization: `Bearer ${OPENAI_API_KEY}`,
                 "OpenAI-Beta": "realtime=v1"
             }
         });
+
+        // Keep-alive mechanism to prevent idle timeouts
+        const startKeepAlive = () => {
+            // Clear existing interval
+            if (keepAliveInterval) {
+                clearInterval(keepAliveInterval);
+            }
+            
+            // Send keep-alive every 10 minutes to prevent idle timeouts
+            keepAliveInterval = setInterval(() => {
+                if (openAiWs.readyState === WebSocket.OPEN) {
+                    try {
+                        // Send a minimal session update to keep connection alive
+                        const keepAliveMessage = {
+                            type: 'session.update',
+                            session: {
+                                temperature: 0.8
+                            }
+                        };
+                        openAiWs.send(JSON.stringify(keepAliveMessage));
+                        console.log('Sent keep-alive to OpenAI API');
+                        lastActivityTime = Date.now();
+                    } catch (error) {
+                        console.error('Error sending keep-alive:', error);
+                    }
+                }
+            }, 10 * 60 * 1000); // 10 minutes
+        };
+
+        const stopKeepAlive = () => {
+            if (keepAliveInterval) {
+                clearInterval(keepAliveInterval);
+                keepAliveInterval = null;
+            }
+        };
 
         // Control initial session with OpenAI
         const initializeSession = () => {
@@ -321,19 +365,36 @@ export function setupWebSocketServer(server) {
         openAiWs.on('open', () => {
             console.log('Connected to the OpenAI Realtime API');
             setTimeout(initializeSession, 100);
+            startKeepAlive(); // Start keep-alive mechanism
         });
 
         // Listen for messages from the OpenAI WebSocket (and send to Twilio if necessary)
         openAiWs.on('message', async (data) => {
             try {
                 const response = JSON.parse(data);
+                lastActivityTime = Date.now(); // Track activity
 
                 // Handle tool calls
                 if (response.type === 'tool_use' && response.tool_call) {
                     const { name, arguments: args, tool_call_id } = response.tool_call;
                     console.log(`[TOOL CALL] Agent requested tool: ${name} with arguments:`, args);
                     let result;
-                    if (name === 'Save_Booking_Details') {
+                    
+                    if (name === 'get_current_weather') {
+                        result = await getWeather(args.city);
+                        if (result.success) {
+                            result = result.response; // Return the formatted response
+                        } else {
+                            result = result.error;
+                        }
+                    } else if (name === 'get_weather_forecast') {
+                        result = await getWeatherForecast(args.city, args.days || 5);
+                        if (result.success) {
+                            result = result.response; // Return the formatted response
+                        } else {
+                            result = result.error;
+                        }
+                    } else if (name === 'Save_Booking_Details') {
                         result = await appendToSheet(args);
                     } else if (name === 'Save_transcript') {
                         result = await saveTranscript(args.callid);
@@ -421,17 +482,36 @@ export function setupWebSocketServer(server) {
 
         // Handle connection close
         connection.on('close', () => {
+            stopKeepAlive(); // Stop keep-alive
             if (openAiWs.readyState === WebSocket.OPEN) openAiWs.close();
             console.log('Client disconnected.');
         });
 
         // Handle WebSocket close and errors
-        openAiWs.on('close', () => {
-            console.log('Disconnected from the OpenAI Realtime API');
+        openAiWs.on('close', (code, reason) => {
+            stopKeepAlive(); // Stop keep-alive when connection closes
+            console.log(`Disconnected from the OpenAI Realtime API. Code: ${code}, Reason: ${reason}`);
+            
+            // Log additional information for debugging
+            const sessionDuration = Math.round((Date.now() - lastActivityTime) / 1000);
+            console.log(`Session duration: ${sessionDuration} seconds`);
+            
+            if (code === 1000) {
+                console.log('Normal closure');
+            } else if (code === 1006) {
+                console.log('Abnormal closure - possible network issue or timeout');
+            } else {
+                console.log(`Closure code: ${code} - ${reason}`);
+            }
         });
 
         openAiWs.on('error', (error) => {
             console.error('Error in the OpenAI WebSocket:', error);
+            console.error('Error details:', {
+                message: error.message,
+                type: error.type,
+                target: error.target?.readyState
+            });
         });
     });
 }

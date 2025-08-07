@@ -15,6 +15,7 @@ import authRoutes from './routes/authRoutes.js'
 import userRoutes from './routes/userRoutes.js'
 import googleSheetRoutes from './routes/googleSheet.js'
 import whatsappRoutes from './routes/whatsapp.js';
+import weatherRoutes from './routes/weather.js';
 
 // dbConnect();
 
@@ -44,6 +45,7 @@ app.use("/anika-twilio/", anikaTwilioRoutes);
 app.use('/tools/calendar', calendarRoutes);
 app.use('/tools/sheets', googleSheetRoutes)
 app.use('/tools/whatsapp', whatsappRoutes);
+app.use('/tools/weather', weatherRoutes);
 app.use('/ultravox', ultravoxRouter);
 app.use('/openai-twilio', openaiTwilioRoutes);
 // Create HTTP server
