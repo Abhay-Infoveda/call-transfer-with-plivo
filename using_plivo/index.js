@@ -3,6 +3,7 @@ import 'dotenv/config';
 import path from 'path';
 import { createServer } from 'http';
 import { router as plivoRoutes } from './routes/plivo.js';
+import {router as bjpAgentRoutes} from './routes/bjpAgent_Routes.js';
 import {router as twilioRoutes} from './routes/steve-twilio.js';
 import {router as anikaTwilioRoutes} from './routes/anika-twilio.js';
 import openaiTwilioRoutes, { setupWebSocketServer } from './routes/openai-twilio-express.js';
@@ -48,6 +49,7 @@ app.use('/tools/whatsapp', whatsappRoutes);
 app.use('/tools/weather', weatherRoutes);
 app.use('/ultravox', ultravoxRouter);
 app.use('/openai-twilio', openaiTwilioRoutes);
+app.use('/bjp-agent', bjpAgentRoutes);
 // Create HTTP server
 const server = createServer(app);
 
