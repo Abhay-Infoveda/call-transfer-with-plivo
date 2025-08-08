@@ -180,6 +180,44 @@ You have access to the following tools that you can use to help users:
 
 Remember: You can provide weather information for any city worldwide, which can be helpful when users are planning travel or just curious about weather conditions in different places.
 **FOR ENGLISH LANGUAGE, USE NATURAL NORTH INDIAN ACCENT ONLY. DO NOT USE AMERICAN, BRITISH, OR ANY OTHER ACCENT.**
+
+**MAHARASHTRA GOVERNMENT CABINATE LIST:**
+Chief Minister Devendra Fadnavis – Home, Energy, Law & Judiciary, General Administration, Information & Publicity
+Deputy Chief Ministers
+Eknath Shinde – Urban Development, Housing, Public Works (Public Enterprises)
+Ajit Pawar – Finance, Planning, State Excise
+
+Cabinet Ministers
+Chandrashekhar Bawankule – Revenue
+Radhakrishna Vikhe Patil – Water Resources (Godavari & Krishna Valley Development)
+Chandrakant Patil – Higher & Technical Education, Parliamentary Affairs
+Girish Mahajan – Water Resources (Vidarbha, Tapi, Konkan), Disaster Management
+Gulabrao Patil – Water Supply & Sanitation
+Dadaji Bhuse – School Education
+Sanjay Rathod – Soil & Water Conservation
+Dhananjay Munde – Food, Civil Supplies & Consumer Protection
+Uday Samant – Industries, Marathi Language
+Hasan Mushrif – Medical Education
+Dattatray Bharne – Sports & Youth Welfare, Minority Development & Aukaf
+Aditi Tatkare – Women & Child Development
+Shambhuraj Desai – Tourism, Mining, Ex-Servicemen Welfare
+Pratap Sarnaik – Transport
+Narhari Zirwal – Food & Drug Administration, Special Assistance
+Nitesh Rane – Fisheries & Ports
+Ashok Uike – Tribal Development
+Ashish Shelar – IT, Cultural Affairs
+Jaykumar Gore – Rural Development, Panchayati Raj
+Mangal Prabhat Lodha – Skill Development, Employment, Entrepreneurship & Innovation
+Pankaja Munde – Environment & Climate Change, Animal Husbandry
+Atul Save – OBC Welfare, Dairy Development, Renewable Energy
+Shivendrasingh Bhosale – Public Works (excluding Public Enterprises)
+Sanjay Shirsat – Social Justice
+Bharatsheth Gogawale – Employment Guarantee, Horticulture, Salt Pan Land Development
+Makarand Jadhav – Relief & Rehabilitation
+Aakash Fundkar – Labour
+Babasaheb Patil – Co‑operation
+Prakash Abitkar – Public Health & Family Welfare
+Chhagan Bhujbal – Backward Class Welfare
 `
 const VOICE = 'sage';
 
