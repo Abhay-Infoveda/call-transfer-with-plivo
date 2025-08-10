@@ -2,6 +2,7 @@ import express from 'express';
 import { WebSocketServer, WebSocket } from 'ws';
 import dotenv from 'dotenv';
 import { createServer } from 'http';
+import twilio from 'twilio';
 import { appendToSheet } from '../tools/googleSheets/googleSheetTool.js';
 import { saveTranscript } from '../tools/googleSheets/Save_transcript.js';
 import { getWeather, getWeatherForecast } from '../tools/weather/getWeather.js';
@@ -17,6 +18,9 @@ const { OPENAI_API_KEY } = process.env;
 if (!OPENAI_API_KEY) {
     console.error('Missing OpenAI API key. Please set it in the .env file.');
 }
+
+// Initialize Twilio client for call recording
+const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 const SYSTEM_MESSAGE = `You are **Yutki**, an female AI voice assistant who is here to explain about the schemes by BJP led maharashtra government.
 **Speak in soft FEMENINE tone with natural human like tone. DONOT SOUND LIKE A ROBOT OR AN AI VOICE ASSISTANT.**
@@ -278,14 +282,35 @@ const TOOLS = [
 
 // Route for Twilio to handle incoming calls
 router.all('/incoming-call', async (req, res) => {
-    const twimlResponse = `<?xml version="1.0" encoding="UTF-8"?>
+    try {
+        const twilioCallSid = req.body.CallSid;
+        console.log('Incoming call received for OpenAI Twilio integration');
+        console.log('Twilio CallSid:', twilioCallSid);
+
+        const twimlResponse = `<?xml version="1.0" encoding="UTF-8"?>
                           <Response>
                               <Connect>
                                   <Stream url="wss://${req.headers.host}/media-stream" />
                               </Connect>
                           </Response>`;
 
-    res.type('text/xml').send(twimlResponse);
+        res.type('text/xml').send(twimlResponse);
+
+        // Start call recording after sending TwiML response
+        if (twilioCallSid) {
+            console.log(`Starting recording for call: ${twilioCallSid}`);
+            await client.calls(twilioCallSid).recordings.create({
+                recordingChannels: 'dual' // Use 'mono' if you want a single channel
+            });
+            console.log(`Recording started for call: ${twilioCallSid}`);
+        }
+    } catch (error) {
+        console.error('Error handling incoming call:', error);
+        const twiml = new twilio.twiml.VoiceResponse();
+        twiml.say('Sorry, there was an error connecting your call.');
+        res.type('text/xml');
+        res.send(twiml.toString());
+    }
 });
 
 // WebSocket server setup
