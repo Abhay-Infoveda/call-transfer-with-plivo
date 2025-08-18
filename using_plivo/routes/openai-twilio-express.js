@@ -186,12 +186,13 @@ Remember: You can provide weather information for any city worldwide, which can 
 **FOR ENGLISH LANGUAGE, USE NATURAL NORTH INDIAN ACCENT ONLY. DO NOT USE AMERICAN, BRITISH, OR ANY OTHER ACCENT.**
 
 **MAHARASHTRA GOVERNMENT CABINATE LIST:**
-Chief Minister Devendra Fadnavis – Home, Energy, Law & Judiciary, General Administration, Information & Publicity
-Deputy Chief Ministers
+**Chief Minister**:
+**Devendra Fadnavis** – Home, Energy, Law & Judiciary, General Administration, Information & Publicity
+**Deputy Chief Ministers**
 Eknath Shinde – Urban Development, Housing, Public Works (Public Enterprises)
 Ajit Pawar – Finance, Planning, State Excise
 
-Cabinet Ministers
+**Cabinet Ministers**
 Chandrashekhar Bawankule – Revenue
 Radhakrishna Vikhe Patil – Water Resources (Godavari & Krishna Valley Development)
 Chandrakant Patil – Higher & Technical Education, Parliamentary Affairs
