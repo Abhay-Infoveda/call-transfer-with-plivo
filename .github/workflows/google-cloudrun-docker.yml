@@ -6,12 +6,12 @@ on:
       - main
 
 env:
-  PROJECT_ID: 'convedai' # TODO: update to your Google Cloud project ID
+  PROJECT_ID: 'voice-agent-services' # TODO: update to your Google Cloud project ID
   REGION: 'us-central1' # TODO: update to your region
-  GCP_SERVICE_ACCOUNT: voice-agents@convedai.iam.gserviceaccount.com
+  GCP_SERVICE_ACCOUNT: voice-agent-service@voice-agent-services.iam.gserviceaccount.com
 
   BACKEND_SERVICE: 'voice-agents-service' # Cloud Run Service Name for Backend
-  ARTIFACT_REPO: 'ai-voice-agents' # Name of Artifact Registry repository
+  ARTIFACT_REPO: 'voice-agent-service' # Name of Artifact Registry repository
 
 jobs:
   deploy:
